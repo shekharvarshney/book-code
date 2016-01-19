@@ -1,0 +1,16 @@
+{	
+	"instrument" : "EUR_USD",	
+	"time" : "2015-12-02T06:47:51.000000Z",	
+	"price" : 1.1,	
+	"orderOpened" : {		
+		"id" : 12211080075,		
+		"units" : 10,		
+		"side" : "sell",		
+		"takeProfit" : 1.09,		
+		"stopLoss" : 0,		
+		"expiry" : "2015-12-02T11:47:39.000000Z",		
+		"upperBound" : 0,		
+		"lowerBound" : 0,		
+		"trailingStop" : 0	
+		}
+}

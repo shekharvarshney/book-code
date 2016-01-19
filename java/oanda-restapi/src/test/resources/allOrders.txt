@@ -1,0 +1,34 @@
+{
+  "orders": [
+    {
+      "id": 1001,
+      "instrument": "USD_CAD",
+      "units": 100,
+      "side": "buy",
+      "type": "marketIfTouched",
+      "time": "1444116207000000",
+      "price": 1.3,
+      "takeProfit": 1.31,
+      "stopLoss": 1.2,
+      "expiry": "1444721003000000",
+      "upperBound": 0,
+      "lowerBound": 0,
+      "trailingStop": 0
+    },
+    {
+      "id": 1002,
+      "instrument": "EUR_USD",
+      "units": 150,
+      "side": "buy",
+      "type": "marketIfTouched",
+      "time": "1444108460000000",
+      "price": 1.115,
+      "takeProfit": 0,
+      "stopLoss": 0,
+      "expiry": "1444713259000000",
+      "upperBound": 0,
+      "lowerBound": 0,
+      "trailingStop": 0
+    }
+  ]
+}

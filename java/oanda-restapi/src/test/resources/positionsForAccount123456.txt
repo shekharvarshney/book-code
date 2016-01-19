@@ -1,0 +1,28 @@
+{
+  "positions" : [
+    {
+      "instrument" : "EUR_USD",
+      "units" : 6723,
+      "side" : "sell",
+      "avgPrice" : 1.2419
+    },
+    {
+      "instrument" : "GBP_USD",
+      "units" : 3000,
+      "side" : "sell",
+      "avgPrice" : 1.5982
+    },
+    {
+      "instrument" : "USD_JPY",
+      "units" : 2388,
+      "side" : "buy",
+      "avgPrice" : 112.455
+    }
+    {
+      "instrument" : "EUR_CHF",
+      "units" : 11020,
+      "side" : "sell",
+      "avgPrice" : 1.2306
+    }
+  ]
+}

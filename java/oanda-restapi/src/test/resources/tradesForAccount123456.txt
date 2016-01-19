@@ -1,0 +1,28 @@
+{
+  "trades": [
+    {
+      "id": 1800805337,
+      "units": 3000,
+      "side": "sell",
+      "instrument": "CHF_JPY",
+      "time": "1426660416000000",
+      "price": 120.521,
+      "takeProfit": 105.521,
+      "stopLoss": 121.521,
+      "trailingStop": 0,
+      "trailingAmount": 0
+    },
+    {
+      "id": 1800511850,
+      "units": 3000,
+      "side": "buy",
+      "instrument": "USD_CHF",
+      "time": "1426260592000000",
+      "price": 1.0098,
+      "takeProfit": 1.15979,
+      "stopLoss": 0.9854,
+      "trailingStop": 0,
+      "trailingAmount": 0
+    },
+  ]
+}

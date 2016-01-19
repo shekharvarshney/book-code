@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx.xsd
+    http://www.springframework.org/schema/util
+    http://www.springframework.org/schema/util/spring-util.xsd
+    http://www.springframework.org/schema/task
+    http://www.springframework.org/schema/task/spring-task.xsd">
+	<context:annotation-config/>
+	<context:property-placeholder location="classpath:tradingbot-oanda.properties" ignore-unresolvable="true"/>
+	<bean id="accountDataProvider" class="com.precioustech.fxtrading.oanda.restapi.account.OandaAccountDataProviderService">
+		<constructor-arg index="0" value="${oanda.url}"/>
+		<constructor-arg index="1" value="${oanda.userName}"/>
+		<constructor-arg index="2" value="${oanda.accessToken}"/>
+	</bean>
+	<bean id="providerHelper" class="com.precioustech.fxtrading.oanda.restapi.helper.OandaProviderHelper"/>
+	<bean id="instrumentDataProvider" class="com.precioustech.fxtrading.oanda.restapi.instrument.OandaInstrumentDataProviderService">
+		<constructor-arg index="0" value="${oanda.url}"/>
+		<constructor-arg index="1" value="${oanda.accountId}"/>
+		<constructor-arg index="2" value="${oanda.accessToken}"/>
+	</bean>
+	<bean id="currentPriceInfoProvider" class="com.precioustech.fxtrading.oanda.restapi.marketdata.OandaCurrentPriceInfoProvider">
+		<constructor-arg index="0" value="${oanda.url}"/>
+		<constructor-arg index="1" value="${oanda.accessToken}"/>
+	</bean>
+	<bean id="historicMarketDataProvider" class="com.precioustech.fxtrading.oanda.restapi.marketdata.historic.OandaHistoricMarketDataProvider">
+		<constructor-arg index="0" value="${oanda.url}"/>
+		<constructor-arg index="1" value="${oanda.accessToken}"/>
+	</bean>
+	<bean id="orderManagementProvider" class="com.precioustech.fxtrading.oanda.restapi.order.OandaOrderManagementProvider">
+		<constructor-arg index="0" value="${oanda.url}"/>
+		<constructor-arg index="1" value="${oanda.accessToken}"/>
+		<constructor-arg index="2" ref="accountDataProvider"/>
+	</bean>
+	<bean id="tradeManagementProvider" class="com.precioustech.fxtrading.oanda.restapi.trade.OandaTradeManagementProvider">
+		<constructor-arg index="0" value="${oanda.url}"/>
+		<constructor-arg index="1" value="${oanda.accessToken}"/>
+	</bean>
+	<bean id="positionManagementProvider" class="com.precioustech.fxtrading.oanda.restapi.position.OandaPositionManagementProvider">
+		<constructor-arg index="0" value="${oanda.url}"/>
+		<constructor-arg index="1" value="${oanda.accessToken}"/>
+	</bean>
+	<bean id="eventsStreamingService" class="com.precioustech.fxtrading.oanda.restapi.streaming.events.OandaEventsStreamingService">
+		<constructor-arg index="0" value="${oanda.streaming.url}"/>
+		<constructor-arg index="1" value="${oanda.accessToken}"/>
+		<constructor-arg index="2" ref="accountDataProvider"/>
+		<constructor-arg index="3" ref="eventCallback"/>
+		<constructor-arg index="4" ref="heartBeatCallback"/>
+		<constructor-arg index="5" value="EVENTSTREAM"/>
+	</bean>
+	<bean id="marketDataStreamingService" class="com.precioustech.fxtrading.oanda.restapi.streaming.marketdata.OandaMarketDataStreamingService">
+		<constructor-arg index="0" value="${oanda.streaming.url}"/>
+		<constructor-arg index="1" value="${oanda.accessToken}"/>
+		<constructor-arg index="2" value="${oanda.accountId}"/>
+		<constructor-arg index="3" ref="tradeableInstrumentList"/>
+		<constructor-arg index="4" ref="marketEventCallback"/>
+		<constructor-arg index="5" ref="heartBeatCallback"/>
+		<constructor-arg index="6" value="MKTDATASTREAM"/>
+	</bean>
+	<bean id="orderEventHandler" class="com.precioustech.fxtrading.oanda.restapi.events.OrderFilledEventHandler">
+		<constructor-arg index="0" ref="tradeInfoService"/>
+	</bean>
+	<bean id="tradeEventHandler" class="com.precioustech.fxtrading.oanda.restapi.events.TradeEventHandler">
+		<constructor-arg index="0" ref="tradeInfoService"/>
+	</bean>
+
+	<util:map id="eventEmailContentGeneratorMap" key-type="com.precioustech.fxtrading.events.Event">
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.OrderEvents).MARKET_ORDER_CREATE}" value-ref="orderEventHandler"/>
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.OrderEvents).LIMIT_ORDER_CREATE}" value-ref="orderEventHandler"/>
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.OrderEvents).ORDER_CANCEL}" value-ref="orderEventHandler"/>
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.OrderEvents).ORDER_FILLED}" value-ref="orderEventHandler"/>
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.TradeEvents).TRADE_CLOSE}" value-ref="tradeEventHandler"/>
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.TradeEvents).STOP_LOSS_FILLED}" value-ref="tradeEventHandler"/>
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.TradeEvents).TAKE_PROFIT_FILLED}" value-ref="tradeEventHandler"/>
+	</util:map>
+	
+	<bean id="tradeableInstrumentList" class="java.util.ArrayList">
+		<constructor-arg index="0">
+			<list>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="USD_CAD"/></bean>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="GBP_USD"/></bean>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="AUD_JPY"/></bean>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="EUR_NZD"/></bean>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="GBP_CHF"/></bean>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="EUR_JPY"/></bean>
+			</list>
+		</constructor-arg>
+	</bean>
+</beans>

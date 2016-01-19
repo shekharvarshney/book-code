@@ -1,0 +1,15 @@
+{
+  "instrument" : "EUR_JPY",
+  "time" : "2015-09-22T20:36:06Z", 
+  "price" : 133.75,               
+  "tradeOpened" : {
+    "id" : 175517237,              
+    "units" : 150,                   
+    "side" : "sell",               
+    "takeProfit" : 132.65,              
+    "stopLoss" : 136.00,                
+    "trailingStop" : 133.75             
+  },
+  "tradesClosed" : [],
+  "tradeReduced" : {}
+}

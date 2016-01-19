@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx.xsd
+    http://www.springframework.org/schema/util
+    http://www.springframework.org/schema/util/spring-util.xsd
+    http://www.springframework.org/schema/task
+    http://www.springframework.org/schema/task/spring-task.xsd">
+	<context:annotation-config/>
+	<context:property-placeholder location="classpath:tradingbot.properties" ignore-unresolvable="true"/>
+	<task:scheduler id="taskScheduler" pool-size="5"/>
+	<bean id="eventBus" class="com.google.common.eventbus.EventBus"/>
+	<bean id="findEventBusSubscribers" class="com.precioustech.fxtrading.tradingbot.spring.FindEventBusSubscribers"/>
+	<bean id="tradingConfig" class="com.precioustech.fxtrading.tradingbot.TradingConfig">
+		<property name="minReserveRatio" value="0.1"/>
+		<property name="maxAllowedQuantity" value="10"/>
+		<property name="maxAllowedNetContracts" value="5"/>
+		<property name="minAmountRequired" value="10.0"/>
+		<property name="mailTo" value="${mail.to}"/>
+		<property name="max10yrWmaOffset" value="0.1"/>
+		<property name="fadeTheMoveJumpReqdToTrade" value="45"/>
+		<property name="fadeTheMoveDistanceToTrade" value="25"/>
+		<property name="fadeTheMovePipsDesired" value="10"/>
+		<property name="fadeTheMovePriceExpiry" value="15"/>
+	</bean>
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="${mail.host}"/>
+        <property name="port" value="${mail.port}"/>
+        <property name="username" value="${mail.user}"/>
+        <property name="password" value="${mail.password}"/>
+        <property name="javaMailProperties">
+            <props>
+                <prop key="mail.transport.protocol">smtps</prop>
+                <prop key="mail.smtp.auth">true</prop>
+                <prop key="mail.smtp.starttls.enable">true</prop>
+                <prop key="mail.smtp.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>
+                <prop key="mail.debug">false</prop>
+                <prop key="mail.smtp.socketFactory.fallback">false</prop>
+            </props>
+        </property>
+    </bean>
+	<bean id="eventCallback" class="com.precioustech.fxtrading.events.EventCallbackImpl">
+		<constructor-arg index="0" ref="eventBus"/>
+	</bean>
+	<bean id="heartBeatCallback" class="com.precioustech.fxtrading.heartbeats.HeartBeatCallbackImpl">
+		<constructor-arg index="0" ref="eventBus"/>
+	</bean>
+	<bean id="marketEventCallback" class="com.precioustech.fxtrading.marketdata.MarketEventHandlerImpl">
+		<constructor-arg index="0" ref="eventBus"/>
+	</bean>
+	<bean id="orderQueue" class="java.util.concurrent.LinkedBlockingQueue"/>
+	
+	<bean id="accountInfoService" class="com.precioustech.fxtrading.account.AccountInfoService">
+		<constructor-arg index="0" ref="accountDataProvider"/>
+		<constructor-arg index="1" ref="currentPriceInfoProvider"/>
+		<constructor-arg index="2" ref="tradingConfig"/>
+		<constructor-arg index="3" ref="providerHelper"/>
+	</bean>
+	<bean id="heartBeatService" class="com.precioustech.fxtrading.heartbeats.DefaultHeartBeatService">
+		<constructor-arg index="0">
+			<list>
+				<ref bean="eventsStreamingService"/>
+				<ref bean="marketDataStreamingService"/>
+			</list>
+		</constructor-arg>
+	</bean>
+	<bean id="instrumentService" class="com.precioustech.fxtrading.instrument.InstrumentService">
+		<constructor-arg index="0" ref="instrumentDataProvider"/>
+	</bean>
+	<bean id="movingAverageCalculationService" class="com.precioustech.fxtrading.marketdata.historic.MovingAverageCalculationService">
+		<constructor-arg index="0" ref="historicMarketDataProvider"/>
+	</bean>
+	<bean id="orderInfoService" class="com.precioustech.fxtrading.order.OrderInfoService">
+		<constructor-arg index="0" ref="orderManagementProvider"/>
+	</bean>
+	<bean id="tradeInfoService" class="com.precioustech.fxtrading.trade.TradeInfoService">
+		<constructor-arg index="0" ref="tradeManagementProvider"/>
+		<constructor-arg index="1" ref="accountInfoService"/>
+	</bean>
+	<bean id="preOrderValidationService" class="com.precioustech.fxtrading.order.PreOrderValidationService">
+		<constructor-arg index="0" ref="tradeInfoService"/>
+		<constructor-arg index="1" ref="movingAverageCalculationService"/>
+		<constructor-arg index="2" ref="tradingConfig"/>
+		<constructor-arg index="3" ref="orderInfoService"/>
+	</bean>
+	<bean id="orderExecutionService" class="com.precioustech.fxtrading.order.OrderExecutionService">
+		<constructor-arg index="0" ref="orderQueue"/>
+		<constructor-arg index="1" ref="accountInfoService"/>
+		<constructor-arg index="2" ref="orderManagementProvider"/>
+		<constructor-arg index="3" ref="tradingConfig"/>
+		<constructor-arg index="4" ref="preOrderValidationService"/>
+		<constructor-arg index="5" ref="currentPriceInfoProvider"/>
+	</bean>
+	<bean id="twitter" class="org.springframework.social.twitter.api.impl.TwitterTemplate">
+		<constructor-arg index="0" value="${twitter.consumerKey}"/>
+		<constructor-arg index="1" value="${twitter.consumerSecret}"/>
+		<constructor-arg index="2" value="${twitter.accessToken}"/>
+		<constructor-arg index="3" value="${twitter.accessTokenSecret}"/>
+	</bean>
+	<bean id="eventEmailNotifier" class="com.precioustech.fxtrading.tradingbot.events.notification.email.EventEmailNotifier"/>
+	<bean id="fadeTheMoveStrategy" class="com.precioustech.fxtrading.tradingbot.strategies.FadeTheMoveStrategy">
+		<constructor-arg index="0" ref="tradeableInstrumentList"/>
+	</bean>
+	<bean id="copyTwitterStrategy" class="com.precioustech.fxtrading.tradingbot.strategies.CopyTwitterStrategy"/>
+	<task:scheduled-tasks scheduler="taskScheduler">
+		<task:scheduled ref="fadeTheMoveStrategy" method="analysePrices" fixed-delay="60000"/>
+		<task:scheduled ref="copyTwitterStrategy" method="harvestAndTrade" fixed-delay="300000"/>
+	</task:scheduled-tasks>
+	<bean id="fxTweeterList" class="java.util.ArrayList">
+		<constructor-arg index="0">
+			<list>
+				<value>SignalFactory</value>
+				<value>ZuluTrader101</value>
+			</list>
+		</constructor-arg>
+	</bean>
+	<util:map id="tweetHandlerMap">
+		<entry key="#{fxTweeterList[0]}">
+			<bean class="com.precioustech.fxtrading.tradingbot.social.twitter.tweethandler.SignalFactoryFXTweetHandler">
+				<constructor-arg index="0" value="#{fxTweeterList[0]}"/>
+			</bean>
+		</entry>
+		<entry key="#{fxTweeterList[1]}">
+			<bean class="com.precioustech.fxtrading.tradingbot.social.twitter.tweethandler.ZuluTrader101FXTweetHandler">
+				<constructor-arg index="0" value="#{fxTweeterList[1]}"/>
+			</bean>
+		</entry>
+	</util:map>
+</beans>

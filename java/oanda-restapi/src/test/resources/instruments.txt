@@ -1,0 +1,32 @@
+{
+  "instruments": [
+    {
+      "instrument": "AUD_CAD",
+      "pip": "0.0001",
+      "interestRate": {
+        "AUD": {
+          "bid": 0.0164,
+          "ask": 0.0274
+        },
+        "CAD": {
+          "bid": 0.002,
+          "ask": 0.008
+        }
+      }
+    },
+    {
+      "instrument": "AUD_CHF",
+      "pip": "0.0001",
+      "interestRate": {
+        "AUD": {
+          "bid": 0.0164,
+          "ask": 0.0274
+        },
+        "CHF": {
+          "bid": -0.013,
+          "ask": 0.003
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{"heartbeat":{"time":"1443967961000000"}}
+{"heartbeat":{"time":"1443967981000000"}}
+{"heartbeat":{"time":"1443968001000000"}}
+{"heartbeat":{"time":"1443968021000000"}}
+{"transaction":{"id":10002,"accountId":123456,"time":"1443968041000000","type":"ORDER_FILLED","instrument":"EUR_USD","units":10,"side":"sell","price":1,"pl":1.234,"interest":0.034,"accountBalance":10000,"orderId":0,"tradeReduced":{"id":54321,"units":10,"pl":1.234,"interest":0.034}}}
+{"transaction":{"id":10003,"accountId":234567,"time":"1443968061000000","type":"TAKE_PROFIT_FILLED","tradeId":1800805337,"instrument":"USD_CHF","units":3000,"side":"sell","price":1.00877,"pl":3.48,"interest":0.0002,"accountBalance":5912.5829}}
+{"heartbeat":{"time":"1443968081000000"}}
+{"transaction":{"id":10004,"accountId":234567,"time":"1443968081000000","type":"STOP_LOSS_FILLED","tradeId":1782812741,"instrument":"USD_SGD","units":3000,"side":"sell","price":1.39101,"pl":3.3039,"interest":-0.0123,"accountBalance":5915.8745}}
+{"heartbeat":{"time":"1443968101000000"}}
+{"disconnect":{"code":64,"message":"bye","moreInfo":"none"}}

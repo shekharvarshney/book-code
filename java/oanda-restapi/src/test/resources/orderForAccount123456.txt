@@ -1,0 +1,15 @@
+{
+    "id": 1001,
+    "instrument": "USD_JPY",
+    "units": 125,
+    "side": "sell",
+    "type": "marketIfTouched",
+    "time": "1444116207000000",
+    "price": 122.15,
+    "takeProfit": 119.25,
+    "stopLoss": 125.00,
+    "expiry": "1444721003000000",
+    "upperBound": 0,
+    "lowerBound": 0,
+    "trailingStop": 0
+}

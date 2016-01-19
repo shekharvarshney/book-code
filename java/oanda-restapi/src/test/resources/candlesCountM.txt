@@ -1,0 +1,24 @@
+{
+  "instrument": "GBP_USD",
+  "granularity": "D",
+  "candles": [
+    {
+      "time": "1442098800000000",
+      "openMid": 1.54301,
+      "highMid": 1.544695,
+      "lowMid": 1.54284,
+      "closeMid": 1.544295,
+      "volume": 868,
+      "complete": true
+    },
+    {
+      "time": "1442185200000000",
+      "openMid": 1.544245,
+      "highMid": 1.54594,
+      "lowMid": 1.54376,
+      "closeMid": 1.54406,
+      "volume": 3765,
+      "complete": false
+    }
+  ]
+}

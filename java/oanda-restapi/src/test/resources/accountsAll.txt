@@ -1,0 +1,16 @@
+{
+  "accounts": [
+      {
+        "accountId" : 1898212,
+        "accountName" : "GreenBack",
+        "accountCurrency" : "USD",
+        "marginRate" : 0.05
+      },
+      {
+        "accountId" : 2093221,
+        "accountName" : "Loonie",
+        "accountCurrency" : "CAD",
+        "marginRate" : 0.02
+      }
+  ]
+}

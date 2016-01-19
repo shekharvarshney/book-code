@@ -1,0 +1,6 @@
+{
+  "side" : "buy",
+  "instrument" : "GBP_CHF",
+  "units" : 4516,
+  "avgPrice" : 1.3093
+}
