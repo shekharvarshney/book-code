@@ -17,7 +17,6 @@ package com.precioustech.fxtrading.tradingbot;
 
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.precioustech.fxtrading.streaming.events.EventsStreamingService;
@@ -33,20 +32,13 @@ public class FXTradingBot {
 			LOG.fatal("Usage: FxTradingBot <Implementation Config FileName>");
 			System.exit(1);
 		}
-		ApplicationContext appContext = null;
-		try {
-			appContext = new ClassPathXmlApplicationContext("tradingbot-app.xml", args[0]);
+		ApplicationContext appContext = new ClassPathXmlApplicationContext("tradingbot-app.xml", args[0]);
 
-			MarketDataStreamingService marketDataStreamingService = appContext
-					.getBean(MarketDataStreamingService.class);
-			marketDataStreamingService.startMarketDataStreaming();
-			EventsStreamingService eventStreamingService = appContext.getBean(EventsStreamingService.class);
-			eventStreamingService.startEventsStreaming();
-		} finally {
-			if (appContext != null) {
-				((ConfigurableApplicationContext) appContext).close();
-			}
-		}
+		MarketDataStreamingService marketDataStreamingService = appContext.getBean(MarketDataStreamingService.class);
+		marketDataStreamingService.startMarketDataStreaming();
+		EventsStreamingService eventStreamingService = appContext.getBean(EventsStreamingService.class);
+		eventStreamingService.startEventsStreaming();
+
 	}
 
 }
