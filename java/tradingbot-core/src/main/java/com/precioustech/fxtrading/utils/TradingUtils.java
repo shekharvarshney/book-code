@@ -127,7 +127,8 @@ public class TradingUtils {
 	 */
 	public static final String responseToString(HttpResponse response) throws IOException {
 		HttpEntity entity = response.getEntity();
-		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK && entity != null) {
+		if ((response.getStatusLine().getStatusCode() == HttpStatus.SC_OK || response.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED)
+				&& entity != null) {
 			InputStream stream = entity.getContent();
 			String line;
 			BufferedReader br = new BufferedReader(new InputStreamReader(stream));
