@@ -131,7 +131,7 @@ public class ZuluTrader101FXTweetHandler extends AbstractFXTweetHandler<String> 
 	public Collection<Tweet> findHistoricPnlTweetsForInstrument(TradeableInstrument<String> instrument) {
 		String isoInstr = TradingConstants.HASHTAG + this.providerHelper.toIsoFormat(instrument.getInstrument());
 		SearchResults results = twitter.searchOperations().search(
-				String.format("from:%s AND %s AND \"Closed Buy\" OR \"Closed Sell\"", getUserId(), isoInstr));
+				String.format("from:%s \"Closed Buy\" OR \"Closed Sell\" %s", getUserId(), isoInstr));
 		return results.getTweets();
 	}
 

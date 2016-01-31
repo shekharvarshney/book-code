@@ -146,7 +146,7 @@ public class SignalFactoryFXTweetHandlerTest {
 		TradeableInstrument<String> nzdusd = new TradeableInstrument<String>("NZD_USD");
 		when(providerHelper.toIsoFormat(eq("NZD_USD"))).thenReturn("NZDUSD");
 		SearchResults searchResults = returnHistoricPnlSearchResults();
-		String query = "from:SignalFactory AND NZDUSD AND Profit: OR Loss:";
+		String query = "Profit: OR Loss: from:SignalFactory";
 		when(searchOperations.search(eq(query))).thenReturn(searchResults);
 		Collection<Tweet> tweets = tweetHandler.findHistoricPnlTweetsForInstrument(nzdusd);
 		assertEquals(1, tweets.size());
@@ -183,7 +183,10 @@ public class SignalFactoryFXTweetHandlerTest {
 		SearchResults searchResults = mock(SearchResults.class);
 		List<Tweet> tweets = Lists.newArrayList();
 		when(searchResults.getTweets()).thenReturn(tweets);
-		tweets.add(mock(Tweet.class));
+		Tweet tweet = mock(Tweet.class);
+		when(tweet.getText()).thenReturn(
+				"Forex Signal | Close(SL) Sell NZDUSD@0.7744 | Loss: -40 pips | 2015.02.06 11:26 GMT | #fx #forex #fb");
+		tweets.add(tweet);
 		return searchResults;
 	}
 

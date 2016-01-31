@@ -44,8 +44,8 @@ public abstract class AbstractFXTweetHandler<T> implements FXTweetHandler<T> {
 	@Autowired
 	protected ProviderHelper providerHelper;
 
-	protected final DateTime startTime = DateTime.now();
-	protected final String startTimeAsStr;
+	protected DateTime startTime = DateTime.now();
+	protected String startTimeAsStr;
 	protected volatile Long lastTweetId = null;
 	protected final String userId;
 	protected static final String CLOSED = "Closed";
@@ -57,6 +57,10 @@ public abstract class AbstractFXTweetHandler<T> implements FXTweetHandler<T> {
 
 	protected AbstractFXTweetHandler(String userId) {
 		this.userId = userId;
+		setStartTimeAsStr();
+	}
+
+	private void setStartTimeAsStr() {
 		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd");
 		startTimeAsStr = formatter.print(this.startTime);
 	}
@@ -64,6 +68,11 @@ public abstract class AbstractFXTweetHandler<T> implements FXTweetHandler<T> {
 	protected abstract NewFXTradeTweet<T> parseNewTrade(String tokens[]);
 
 	protected abstract CloseFXTradeTweet<T> parseCloseTrade(String tokens[]);
+
+	public void setStartTime(DateTime startTime) {
+		this.startTime = startTime;
+		setStartTimeAsStr();
+	}
 
 	@Override
 	public String getUserId() {

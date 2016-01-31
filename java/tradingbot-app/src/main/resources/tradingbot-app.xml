@@ -119,7 +119,7 @@
 		<constructor-arg index="0">
 			<list>
 				<value>SignalFactory</value>
-				<value>ZuluTrader101</value>
+				<value>Forex_EA4U</value>
 			</list>
 		</constructor-arg>
 	</bean>

@@ -16,11 +16,13 @@
 package com.precioustech.fxtrading.tradingbot.social.twitter.tweethandler;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.social.twitter.api.SearchResults;
 import org.springframework.social.twitter.api.Tweet;
 
+import com.google.common.collect.Lists;
 import com.precioustech.fxtrading.TradingConstants;
 import com.precioustech.fxtrading.TradingSignal;
 import com.precioustech.fxtrading.instrument.TradeableInstrument;
@@ -87,8 +89,24 @@ public class SignalFactoryFXTweetHandler extends AbstractFXTweetHandler<String> 
 	@Override
 	public Collection<Tweet> findHistoricPnlTweetsForInstrument(TradeableInstrument<String> instrument) {
 		String isoInstr = this.providerHelper.toIsoFormat(instrument.getInstrument());
-		SearchResults results = twitter.searchOperations().search(
-				String.format("from:%s AND %s AND Profit: OR Loss:", getUserId(), isoInstr));
-		return results.getTweets();
+
+		/*
+		 * And queries have suddenly stopped working. 
+		 * something simple like from:SignalFactory GBPNZD is not working. 
+		 * Check it out yourself on https://twitter.com/search-advanced.
+		 * Apparently the only option is to get all tweets with phrase Profit or Loss
+		 * and then use String contains to perform the step2 filtering 
+		 */
+
+		String query = String.format("Profit: OR Loss: from:%s", getUserId(), isoInstr);
+		SearchResults results = twitter.searchOperations().search(query);
+		List<Tweet> pnlTweets = results.getTweets();
+		List<Tweet> filteredPnlTweets = Lists.newArrayList();
+		for (Tweet pnlTweet : pnlTweets) {
+			if (pnlTweet.getText().contains(isoInstr)) {
+				filteredPnlTweets.add(pnlTweet);
+			}
+		}
+		return filteredPnlTweets;
 	}
 }

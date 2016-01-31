@@ -79,7 +79,7 @@ public class ZuluTrader101FXTweetHandlerTest {
 		TradeableInstrument<String> audusd = new TradeableInstrument<String>("AUD_USD");
 		when(providerHelper.toIsoFormat(eq("AUD_USD"))).thenReturn("AUDUSD");
 		SearchResults searchResults = returnHistoricPnlSearchResults();
-		String query = "from:ZuluTrader101 AND #AUDUSD AND \"Closed Buy\" OR \"Closed Sell\"";
+		String query = "from:ZuluTrader101 \"Closed Buy\" OR \"Closed Sell\" #AUDUSD";
 		when(searchOperations.search(eq(query))).thenReturn(searchResults);
 		Collection<Tweet> tweets = tweetHandler.findHistoricPnlTweetsForInstrument(audusd);
 		assertEquals(1, tweets.size());
