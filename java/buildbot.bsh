@@ -1,0 +1,15 @@
+#!/bin/bash
+
+function buildmodule {
+    cd $SCRIPT_DIR/$1
+    mvn clean install
+    if [[ "$?" -ne 0 ]]; then
+      echo "ERROR: $1 project build failed. BUILD FAILED"; exit -1;
+    fi
+}
+SCRIPT_DIR=`pwd`
+buildmodule tradingbot-core
+buildmodule oanda-restapi
+buildmodule tradingbot-app
+
+echo "TRADING BOT built successfully"
