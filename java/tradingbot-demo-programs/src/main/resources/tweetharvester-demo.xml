@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/util
+    http://www.springframework.org/schema/util/spring-util.xsd">
+    <context:annotation-config/>
+    <bean id="twitter" class="org.springframework.social.twitter.api.impl.TwitterTemplate">
+		<constructor-arg index="0" value="#{ systemProperties['twitter.consumerKey'] }"/>
+		<constructor-arg index="1" value="#{ systemProperties['twitter.consumerSecret'] }"/>
+		<constructor-arg index="2" value="#{ systemProperties['twitter.accessToken'] }"/>
+		<constructor-arg index="3" value="#{ systemProperties['twitter.accessTokenSecret'] }"/>
+	</bean>
+	<bean id="providerHelper" class="com.precioustech.fxtrading.oanda.restapi.helper.OandaProviderHelper"/>
+	<bean id="instrumentDataProvider" 
+			class="com.precioustech.fxtrading.oanda.restapi.instrument.OandaInstrumentDataProviderService">
+		<constructor-arg index="0" value="#{ systemProperties['oanda.url'] }"/>
+		<constructor-arg index="1" value="#{ systemProperties['oanda.accountId'] }"/>
+		<constructor-arg index="2" value="#{ systemProperties['oanda.accessToken'] }"/>
+	</bean>
+	<bean id="instrumentService" class="com.precioustech.fxtrading.instrument.InstrumentService">
+		<constructor-arg index="0" ref="instrumentDataProvider"/>
+	</bean>
+	<bean id="fxTweeterList" class="java.util.ArrayList">
+		<constructor-arg index="0">
+			<list>
+				<value>SignalFactory</value>
+				<value>Forex_EA4U</value>
+			</list>
+		</constructor-arg>
+	</bean>
+	<bean id="startTimeLine" class="org.joda.time.DateTime">
+		<constructor-arg index="0" value="1451606400000" type="long"/><!-- 01 Jan 2016 -->
+	</bean>
+	<util:map id="tweetHandlerMap">
+		<entry key="#{fxTweeterList[0]}">
+			<bean 
+			class="com.precioustech.fxtrading.tradingbot.social.twitter.tweethandler.SignalFactoryFXTweetHandler">
+				<constructor-arg index="0" value="#{fxTweeterList[0]}"/>
+				<property name="startTime" ref="startTimeLine"/>
+			</bean>
+		</entry>
+		<entry key="#{fxTweeterList[1]}">
+			<bean 
+			class="com.precioustech.fxtrading.tradingbot.social.twitter.tweethandler.ZuluTrader101FXTweetHandler">
+				<constructor-arg index="0" value="#{fxTweeterList[1]}"/>
+				<property name="startTime" ref="startTimeLine"/>
+			</bean>
+		</entry>
+	</util:map>
+	<bean id="orderQueue" class="java.util.concurrent.LinkedBlockingQueue"/>
+	<bean id="copyTwitterStrategy" class="com.precioustech.fxtrading.tradingbot.strategies.CopyTwitterStrategy"/>
+</beans>
