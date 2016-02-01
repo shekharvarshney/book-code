@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd">
+    <context:annotation-config/>
+    <bean id="tradeableInstrumentList" class="java.util.ArrayList">
+		<constructor-arg index="0">
+			<list>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument">
+					<constructor-arg index="0" value="AUD_CHF"/>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+	<bean id="fadeTheMoveStrategy" 
+			class="com.precioustech.fxtrading.tradingbot.strategies.FadeTheMoveStrategy">
+		<constructor-arg index="0" ref="tradeableInstrumentList"/>
+	</bean>
+	<bean id="tradingConfig" 
+    		class="com.precioustech.fxtrading.tradingbot.TradingConfig">
+		<property name="minReserveRatio" value="0.1"/>
+		<property name="maxAllowedQuantity" value="10"/>
+		<property name="maxAllowedNetContracts" value="5"/>
+		<property name="minAmountRequired" value="10.0"/>
+		<property name="mailTo" value="foobar@gmail.com"/>
+		<property name="max10yrWmaOffset" value="0.1"/>
+		<property name="fadeTheMoveJumpReqdToTrade" value="45"/>
+		<property name="fadeTheMoveDistanceToTrade" value="25"/>
+		<property name="fadeTheMovePipsDesired" value="10"/>
+		<property name="fadeTheMovePriceExpiry" value="15"/>
+	</bean>
+	<bean id="orderQueue" class="java.util.concurrent.LinkedBlockingQueue"/>
+	<bean id="instrumentService" class="com.precioustech.fxtrading.instrument.InstrumentService">
+		<constructor-arg index="0" ref="instrumentDataProvider"/>
+	</bean>
+	<bean id="instrumentDataProvider" class="com.precioustech.fxtrading.oanda.restapi.instrument.OandaInstrumentDataProviderService">
+		<constructor-arg index="0" value="#{ systemProperties['oanda.url'] }"/>
+		<constructor-arg index="1" value="#{ systemProperties['oanda.accountId'] }"/>
+		<constructor-arg index="2" value="#{ systemProperties['oanda.accessToken'] }"/>
+	</bean>
+</beans>

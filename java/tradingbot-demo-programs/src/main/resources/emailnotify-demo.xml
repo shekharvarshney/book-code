@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/util
+    http://www.springframework.org/schema/util/spring-util.xsd">
+    <context:annotation-config/>
+    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="#{ systemProperties['mail.host'] }"/>
+        <property name="port" value="#{ systemProperties['mail.port'] }"/>
+        <property name="username" value="#{ systemProperties['mail.user'] }"/>
+        <property name="password" value="#{ systemProperties['mail.password'] }"/>
+        <property name="javaMailProperties">
+            <props>
+                <prop key="mail.transport.protocol">smtps</prop>
+                <prop key="mail.smtp.auth">true</prop>
+                <prop key="mail.smtp.starttls.enable">true</prop>
+                <prop key="mail.smtp.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>
+                <prop key="mail.debug">false</prop>
+                <prop key="mail.smtp.socketFactory.fallback">false</prop>
+            </props>
+        </property>
+    </bean>
+    <bean id="tradingConfig" 
+    		class="com.precioustech.fxtrading.tradingbot.TradingConfig">
+		<property name="minReserveRatio" value="0.1"/>
+		<property name="maxAllowedQuantity" value="10"/>
+		<property name="maxAllowedNetContracts" value="5"/>
+		<property name="minAmountRequired" value="10.0"/>
+		<property name="mailTo" value="#{ systemProperties['mail.to'] }"/>
+		<property name="max10yrWmaOffset" value="0.1"/>
+		<property name="fadeTheMoveJumpReqdToTrade" value="45"/>
+		<property name="fadeTheMoveDistanceToTrade" value="25"/>
+		<property name="fadeTheMovePipsDesired" value="10"/>
+		<property name="fadeTheMovePriceExpiry" value="15"/>
+	</bean>
+	<bean id="eventEmailNotifier" 
+			class="com.precioustech.fxtrading.tradingbot.events.notification.email.EventEmailNotifier"/>
+	<bean id="tradeEventHandler" 
+			class="com.precioustech.fxtrading.oanda.restapi.events.TradeEventHandler">
+		<constructor-arg index="0">
+			<null/>
+		</constructor-arg>
+	</bean>
+
+	<util:map id="eventEmailContentGeneratorMap" key-type="com.precioustech.fxtrading.events.Event">
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.TradeEvents).TRADE_CLOSE}" 
+				value-ref="tradeEventHandler"/>
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.TradeEvents).STOP_LOSS_FILLED}" 
+				value-ref="tradeEventHandler"/>
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.TradeEvents).TAKE_PROFIT_FILLED}" 
+				value-ref="tradeEventHandler"/>
+	</util:map>
+</beans>
