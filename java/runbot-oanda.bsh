@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd tradingbot-app
+mvn exec:java -Dexec.mainClass="com.precioustech.fxtrading.tradingbot.FXTradingBot" -Dexec.args="tradingbot-oanda.xml"
