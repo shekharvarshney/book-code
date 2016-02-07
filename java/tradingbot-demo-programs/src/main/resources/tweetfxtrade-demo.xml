@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/util
+    http://www.springframework.org/schema/util/spring-util.xsd">
+    <context:annotation-config/>
+    <bean id="twitter" class="org.springframework.social.twitter.api.impl.TwitterTemplate">
+		<constructor-arg index="0" value="#{ systemProperties['twitter.consumerKey'] }"/>
+		<constructor-arg index="1" value="#{ systemProperties['twitter.consumerSecret'] }"/>
+		<constructor-arg index="2" value="#{ systemProperties['twitter.accessToken'] }"/>
+		<constructor-arg index="3" value="#{ systemProperties['twitter.accessTokenSecret'] }"/>
+	</bean>
+	<bean id="instrumentDataProvider" 
+			class="com.precioustech.fxtrading.oanda.restapi.instrument.OandaInstrumentDataProviderService">
+		<constructor-arg index="0" value="#{ systemProperties['oanda.url'] }"/>
+		<constructor-arg index="1" value="#{ systemProperties['oanda.accountId'] }"/>
+		<constructor-arg index="2" value="#{ systemProperties['oanda.accessToken'] }"/>
+	</bean>
+	<bean id="instrumentService" class="com.precioustech.fxtrading.instrument.InstrumentService">
+		<constructor-arg index="0" ref="instrumentDataProvider"/>
+	</bean>
+	<bean id="transactionDataProvider" class="com.precioustech.fxtrading.oanda.restapi.account.transaction.OandaTransactionDataProviderService">
+		<constructor-arg index="0" value="#{ systemProperties['oanda.url'] }"/>
+		<constructor-arg index="1" value="#{ systemProperties['oanda.accessToken'] }"/>
+	</bean>
+	<bean id="orderPayLoadToTweet" class="com.precioustech.fxtrading.oanda.restapi.events.OrderPayLoadToTweet"/>
+	<bean id="tradeEventHandler" class="com.precioustech.fxtrading.oanda.restapi.events.TradeEventHandler">
+		<constructor-arg index="0">
+			<null/>
+		</constructor-arg>
+		<constructor-arg index="1" ref="transactionDataProvider"/>
+		<constructor-arg index="2" ref="instrumentService"/>
+	</bean>
+	<util:map id="eventPayLoadToTweetMap" key-type="com.precioustech.fxtrading.events.Event">
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.OrderEvents).LIMIT_ORDER_CREATE}" value-ref="orderPayLoadToTweet"/>
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.OrderEvents).ORDER_FILLED}" value-ref="orderPayLoadToTweet"/>
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.TradeEvents).TRADE_CLOSE}" value-ref="tradeEventHandler"/>
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.TradeEvents).STOP_LOSS_FILLED}" value-ref="tradeEventHandler"/>
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.TradeEvents).TAKE_PROFIT_FILLED}" value-ref="tradeEventHandler"/>
+	</util:map>
+	<bean id="tweetFXTradeService" class="com.precioustech.fxtrading.tradingbot.social.twitter.tweethandler.TweetFXTradeService"/>
+</beans>

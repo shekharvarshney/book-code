@@ -107,6 +107,12 @@ public class OandaUtils {
 				ccy));
 	}
 
+	public static final String oandaToHashTagCcy(String oandaCcy) {
+		String[] currencies = OandaUtils.splitCcyPair(oandaCcy);
+		final String instrumentAsHashtag = TradingConstants.HASHTAG + currencies[0] + currencies[1];
+		return instrumentAsHashtag;
+	}
+
 	public static final String hashTagCcyToOandaCcy(String ccy) {
 		final int expectedLen = 7;
 		if (!StringUtils.isEmpty(ccy) && ccy.startsWith(TradingConstants.HASHTAG) && ccy.length() == expectedLen) {

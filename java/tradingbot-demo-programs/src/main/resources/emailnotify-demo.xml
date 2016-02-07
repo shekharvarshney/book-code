@@ -48,6 +48,12 @@
 		<constructor-arg index="0">
 			<null/>
 		</constructor-arg>
+		<constructor-arg index="1">
+			<null/>
+		</constructor-arg>
+		<constructor-arg index="2">
+			<null/>
+		</constructor-arg>
 	</bean>
 
 	<util:map id="eventEmailContentGeneratorMap" key-type="com.precioustech.fxtrading.events.Event">

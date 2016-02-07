@@ -22,7 +22,6 @@ import org.springframework.social.twitter.api.Tweet;
 import com.precioustech.fxtrading.instrument.TradeableInstrument;
 import com.precioustech.fxtrading.tradingbot.social.twitter.FXTradeTweet;
 
-;
 
 public interface FXTweetHandler<T> {
 

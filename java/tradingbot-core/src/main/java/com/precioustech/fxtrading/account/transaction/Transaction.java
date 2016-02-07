@@ -17,38 +17,47 @@ package com.precioustech.fxtrading.account.transaction;
 
 import org.joda.time.DateTime;
 
-public class Transaction<M, N> {
+import com.precioustech.fxtrading.TradingSignal;
+import com.precioustech.fxtrading.events.Event;
+import com.precioustech.fxtrading.instrument.TradeableInstrument;
+
+public class Transaction<M, N, T> {
 	private final M transactionId;
-	private final String transactionType;
+	private final Event transactionType;
 	private final N accountId;
-	private final String instrument;
+	private final TradeableInstrument<T> instrument;
 	private final long units;
 	private final DateTime transactionTime;
 	private final double price;
 	private final double interest;
 	private final double pnl;
-	private final M linkedTransactionId;
+	private final TradingSignal side;
 
-	public Transaction(M transactionId, String transactionType, N accountId, String instrument, long units,
-			DateTime transactionTime, double price, double interest, double pnl, M linkedTransactionId) {
+	public Transaction(M transactionId, Event transactionType, N accountId, String instrument, long units,
+			TradingSignal side,
+			DateTime transactionTime, double price, double interest, double pnl) {
 		super();
 		this.transactionId = transactionId;
 		this.transactionType = transactionType;
 		this.accountId = accountId;
-		this.instrument = instrument;
+		this.instrument = new TradeableInstrument<T>(instrument);
 		this.units = units;
+		this.side = side;
 		this.transactionTime = transactionTime;
 		this.price = price;
 		this.interest = interest;
 		this.pnl = pnl;
-		this.linkedTransactionId = linkedTransactionId;
+	}
+
+	public TradingSignal getSide() {
+		return this.side;
 	}
 
 	public M getTransactionId() {
 		return transactionId;
 	}
 
-	public String getTransactionType() {
+	public Event getTransactionType() {
 		return transactionType;
 	}
 
@@ -56,7 +65,7 @@ public class Transaction<M, N> {
 		return accountId;
 	}
 
-	public String getInstrument() {
+	public TradeableInstrument<T> getInstrument() {
 		return instrument;
 	}
 
@@ -78,9 +87,5 @@ public class Transaction<M, N> {
 
 	public double getPnl() {
 		return pnl;
-	}
-
-	public M getLinkedTransactionId() {
-		return linkedTransactionId;
 	}
 }

@@ -1,0 +1,14 @@
+{
+	"id" : 1800806000,
+	"accountId" : 123456,
+	"time" : "1442216738184236",
+	"type" : "TRADE_CLOSE",
+	"instrument" : "EUR_CHF",
+	"units" : 200,
+	"side" : "sell",
+	"price" : 1.10642,
+	"pl" : 0.2538,
+	"interest" : 0,
+	"accountBalance" : 1345.89,
+	"tradeId" : 1800805337
+}

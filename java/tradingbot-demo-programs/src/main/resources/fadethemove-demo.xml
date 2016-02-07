@@ -14,6 +14,9 @@
 				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument">
 					<constructor-arg index="0" value="AUD_CHF"/>
 				</bean>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument">
+					<constructor-arg index="0" value="AUD_JPY"/>
+				</bean>
 			</list>
 		</constructor-arg>
 	</bean>

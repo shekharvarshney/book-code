@@ -111,6 +111,7 @@
 		<constructor-arg index="0" ref="tradeableInstrumentList"/>
 	</bean>
 	<bean id="copyTwitterStrategy" class="com.precioustech.fxtrading.tradingbot.strategies.CopyTwitterStrategy"/>
+	<bean id="tweetFXTradeService" class="com.precioustech.fxtrading.tradingbot.social.twitter.tweethandler.TweetFXTradeService"/>
 	<task:scheduled-tasks scheduler="taskScheduler">
 		<task:scheduled ref="fadeTheMoveStrategy" method="analysePrices" fixed-delay="60000"/>
 		<task:scheduled ref="copyTwitterStrategy" method="harvestAndTrade" fixed-delay="300000"/>

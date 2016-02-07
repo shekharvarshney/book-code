@@ -49,6 +49,10 @@
 		<constructor-arg index="0" value="${oanda.url}"/>
 		<constructor-arg index="1" value="${oanda.accessToken}"/>
 	</bean>
+	<bean id="transactionDataProvider" class="com.precioustech.fxtrading.oanda.restapi.account.transaction.OandaTransactionDataProviderService">
+		<constructor-arg index="0" value="${oanda.url}"/>
+		<constructor-arg index="1" value="${oanda.accessToken}"/>
+	</bean>
 	<bean id="eventsStreamingService" class="com.precioustech.fxtrading.oanda.restapi.streaming.events.OandaEventsStreamingService">
 		<constructor-arg index="0" value="${oanda.streaming.url}"/>
 		<constructor-arg index="1" value="${oanda.accessToken}"/>
@@ -69,8 +73,11 @@
 	<bean id="orderEventHandler" class="com.precioustech.fxtrading.oanda.restapi.events.OrderFilledEventHandler">
 		<constructor-arg index="0" ref="tradeInfoService"/>
 	</bean>
+	<bean id="orderPayLoadToTweet" class="com.precioustech.fxtrading.oanda.restapi.events.OrderPayLoadToTweet"/>
 	<bean id="tradeEventHandler" class="com.precioustech.fxtrading.oanda.restapi.events.TradeEventHandler">
 		<constructor-arg index="0" ref="tradeInfoService"/>
+		<constructor-arg index="1" ref="transactionDataProvider"/>
+		<constructor-arg index="2" ref="instrumentService"/>
 	</bean>
 
 	<util:map id="eventEmailContentGeneratorMap" key-type="com.precioustech.fxtrading.events.Event">
@@ -78,6 +85,14 @@
 		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.OrderEvents).LIMIT_ORDER_CREATE}" value-ref="orderEventHandler"/>
 		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.OrderEvents).ORDER_CANCEL}" value-ref="orderEventHandler"/>
 		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.OrderEvents).ORDER_FILLED}" value-ref="orderEventHandler"/>
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.TradeEvents).TRADE_CLOSE}" value-ref="tradeEventHandler"/>
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.TradeEvents).STOP_LOSS_FILLED}" value-ref="tradeEventHandler"/>
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.TradeEvents).TAKE_PROFIT_FILLED}" value-ref="tradeEventHandler"/>
+	</util:map>
+	
+	<util:map id="eventPayLoadToTweetMap" key-type="com.precioustech.fxtrading.events.Event">
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.OrderEvents).LIMIT_ORDER_CREATE}" value-ref="orderPayLoadToTweet"/>
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.OrderEvents).ORDER_FILLED}" value-ref="orderPayLoadToTweet"/>
 		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.TradeEvents).TRADE_CLOSE}" value-ref="tradeEventHandler"/>
 		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.TradeEvents).STOP_LOSS_FILLED}" value-ref="tradeEventHandler"/>
 		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.TradeEvents).TAKE_PROFIT_FILLED}" value-ref="tradeEventHandler"/>
