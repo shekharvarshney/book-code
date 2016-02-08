@@ -40,6 +40,7 @@ import com.precioustech.fxtrading.TradingSignal;
 import com.precioustech.fxtrading.instrument.InstrumentService;
 import com.precioustech.fxtrading.instrument.TradeableInstrument;
 import com.precioustech.fxtrading.marketdata.MarketDataPayLoad;
+import com.precioustech.fxtrading.marketdata.PipJumpCutOffCalculator;
 import com.precioustech.fxtrading.trade.strategies.TradingStrategy;
 import com.precioustech.fxtrading.tradingbot.TradingConfig;
 
@@ -50,6 +51,8 @@ public class FadeTheMoveStrategy<T> {
 	TradingConfig tradingConfig;
 	@Autowired
 	InstrumentService<T> instrumentService;
+	@Autowired
+	PipJumpCutOffCalculator<T> pipJumpCutOffCalculator;
 	@Resource(name = "orderQueue")
 	BlockingQueue<TradingDecision<T>> orderQueue;
 	private final Collection<TradeableInstrument<T>> instruments;
@@ -64,8 +67,8 @@ public class FadeTheMoveStrategy<T> {
 	@PostConstruct
 	public void init() {
 		for (TradeableInstrument<T> instrument : instruments) {
-			Cache<DateTime, MarketDataPayLoad<T>> recentPricesCache = CacheBuilder.newBuilder().expireAfterWrite(
-					tradingConfig.getFadeTheMovePriceExpiry(), TimeUnit.MINUTES)
+			Cache<DateTime, MarketDataPayLoad<T>> recentPricesCache = CacheBuilder.newBuilder()
+					.expireAfterWrite(tradingConfig.getFadeTheMovePriceExpiry(), TimeUnit.MINUTES)
 					.<DateTime, MarketDataPayLoad<T>> build();
 			instrumentRecentPricesCache.put(instrument, recentPricesCache);
 		}
@@ -91,7 +94,7 @@ public class FadeTheMoveStrategy<T> {
 			}
 			Double pipJump = calculatePipJump(sortedByDate.values(), entry.getKey());
 			Double absPipJump = Math.abs(pipJump);
-			if (absPipJump >= tradingConfig.getFadeTheMoveJumpReqdToTrade()) {
+			if (absPipJump >= this.pipJumpCutOffCalculator.calculatePipJumpCutOff(entry.getKey())) {
 				MarketDataPayLoad<T> lastPayLoad = sortedByDate.get(sortedByDate.lastKey());
 				Double pip = this.instrumentService.getPipForInstrument(entry.getKey());
 				double takeProfitPrice;
@@ -108,7 +111,11 @@ public class FadeTheMoveStrategy<T> {
 				}
 				this.orderQueue.offer(new TradingDecision<T>(entry.getKey(), signal, takeProfitPrice, 0.0, limitPrice,
 						TradingDecision.SRCDECISION.FADE_THE_MOVE));
-				entry.getValue().asMap().clear();/*clear the prices so that we do not keep working on old decision*/
+				entry.getValue().asMap()
+						.clear();/*
+									 * clear the prices so that we do not keep
+									 * working on old decision
+									 */
 			}
 		}
 	}

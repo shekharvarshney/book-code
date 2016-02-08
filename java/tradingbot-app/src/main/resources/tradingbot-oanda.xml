@@ -101,6 +101,11 @@
 	<bean id="tradeableInstrumentList" class="java.util.ArrayList">
 		<constructor-arg index="0">
 			<list>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="USD_CHF"/></bean>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="GBP_JPY"/></bean>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="NZD_CAD"/></bean>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="NZD_JPY"/></bean>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="NZD_CHF"/></bean>
 				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="USD_CAD"/></bean>
 				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="GBP_USD"/></bean>
 				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="AUD_JPY"/></bean>

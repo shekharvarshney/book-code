@@ -17,6 +17,7 @@ package com.precioustech.fxtrading.tradingbot.strategies;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -32,6 +33,7 @@ import com.precioustech.fxtrading.TradingSignal;
 import com.precioustech.fxtrading.instrument.InstrumentService;
 import com.precioustech.fxtrading.instrument.TradeableInstrument;
 import com.precioustech.fxtrading.marketdata.MarketDataPayLoad;
+import com.precioustech.fxtrading.marketdata.PipJumpCutOffCalculator;
 import com.precioustech.fxtrading.tradingbot.TradingAppTestConstants;
 import com.precioustech.fxtrading.tradingbot.TradingConfig;
 
@@ -41,19 +43,26 @@ public class FadeTheMoveStrategyTest {
 	@Test
 	public void analysePricesTest() throws Exception {
 		TradingConfig tradingConfig = mock(TradingConfig.class);
-		when(tradingConfig.getFadeTheMoveJumpReqdToTrade()).thenReturn(45);
+		// when(tradingConfig.getFadeTheMoveJumpReqdToTrade()).thenReturn(45);
+		PipJumpCutOffCalculator<String> pipCalculator = mock(PipJumpCutOffCalculator.class);
+
 		when(tradingConfig.getFadeTheMoveDistanceToTrade()).thenReturn(25);
 		when(tradingConfig.getFadeTheMovePipsDesired()).thenReturn(10);
 		when(tradingConfig.getFadeTheMovePriceExpiry()).thenReturn(15);
 		BlockingQueue<TradingDecision<String>> orderQueue = new LinkedBlockingQueue<TradingDecision<String>>();
 		TradeableInstrument<String> eurusd = new TradeableInstrument<String>("EUR_USD");
 		TradeableInstrument<String> audchf = new TradeableInstrument<String>("AUD_CHF");
+
+		when(pipCalculator.calculatePipJumpCutOff(eq(eurusd))).thenReturn(45.0);
+		when(pipCalculator.calculatePipJumpCutOff(eq(audchf))).thenReturn(29.0);
+
 		FadeTheMoveStrategy<String> strategy = new FadeTheMoveStrategy<String>(Lists.newArrayList(eurusd, audchf));
 		InstrumentService<String> instrumentService = mock(InstrumentService.class);
 		when(instrumentService.getPipForInstrument(any(TradeableInstrument.class))).thenReturn(0.0001);
 		strategy.tradingConfig = tradingConfig;
 		strategy.orderQueue = orderQueue;
 		strategy.instrumentService = instrumentService;
+		strategy.pipJumpCutOffCalculator = pipCalculator;
 		strategy.init();
 		final double[] eurusdPrices = { 1.1345, 1.1341, 1.1339, 1.1338, 1.1333, 1.1332, 1.1331, 1.1330, 1.1328, 1.1325,
 				1.1324, 1.1322, 1.1320, 1.1317, 1.1316, 1.1314, 1.1311, 1.1309, 1.1310, 1.1313, 1.1308, 1.1305, 1.1302,
@@ -61,8 +70,9 @@ public class FadeTheMoveStrategyTest {
 		DateTime eventStarteurusd = DateTime.now().minusMinutes(10);
 		for (double price : eurusdPrices) {
 			eventStarteurusd = eventStarteurusd.plusSeconds(5);
-			strategy.handleMarketDataEvent(new MarketDataPayLoad<String>(eurusd, price
-					- TradingAppTestConstants.precision, price + TradingAppTestConstants.precision, eventStarteurusd));
+			strategy.handleMarketDataEvent(
+					new MarketDataPayLoad<String>(eurusd, price - TradingAppTestConstants.precision,
+							price + TradingAppTestConstants.precision, eventStarteurusd));
 		}
 
 		final double[] audchfPrices = { 0.7069, 0.7070, 0.7073, 0.7076, 0.7077, 0.7078, 0.708, 0.7082, 0.7084, 0.7085,
@@ -71,12 +81,16 @@ public class FadeTheMoveStrategyTest {
 		DateTime eventStartaudchf = DateTime.now().minusMinutes(10);
 		for (double price : audchfPrices) {
 			eventStartaudchf = eventStartaudchf.plusSeconds(5);
-			strategy.handleMarketDataEvent(new MarketDataPayLoad<String>(audchf, price
-					- TradingAppTestConstants.precision, price + TradingAppTestConstants.precision, eventStartaudchf));
+			strategy.handleMarketDataEvent(
+					new MarketDataPayLoad<String>(audchf, price - TradingAppTestConstants.precision,
+							price + TradingAppTestConstants.precision, eventStartaudchf));
 		}
 
 		strategy.analysePrices();
-		for (int i = 1; i <= 2; i++) {/* 2 decisions expected for eurusd and audchf*/
+		for (int i = 1; i <= 2; i++) {/*
+										 * 2 decisions expected for eurusd and
+										 * audchf
+										 */
 			TradingDecision<String> decision = orderQueue.take();
 			assertEquals(TradingDecision.SRCDECISION.FADE_THE_MOVE, decision.getTradeSource());
 			if (eurusd.equals(decision.getInstrument())) {

@@ -22,9 +22,9 @@
 	<bean id="findEventBusSubscribers" class="com.precioustech.fxtrading.tradingbot.spring.FindEventBusSubscribers"/>
 	<bean id="tradingConfig" class="com.precioustech.fxtrading.tradingbot.TradingConfig">
 		<property name="minReserveRatio" value="0.1"/>
-		<property name="maxAllowedQuantity" value="10"/>
+		<property name="maxAllowedQuantity" value="200"/>
 		<property name="maxAllowedNetContracts" value="5"/>
-		<property name="minAmountRequired" value="10.0"/>
+		<property name="minAmountRequired" value="100.0"/>
 		<property name="mailTo" value="${mail.to}"/>
 		<property name="max10yrWmaOffset" value="0.1"/>
 		<property name="fadeTheMoveJumpReqdToTrade" value="45"/>
@@ -109,6 +109,16 @@
 	<bean id="eventEmailNotifier" class="com.precioustech.fxtrading.tradingbot.events.notification.email.EventEmailNotifier"/>
 	<bean id="fadeTheMoveStrategy" class="com.precioustech.fxtrading.tradingbot.strategies.FadeTheMoveStrategy">
 		<constructor-arg index="0" ref="tradeableInstrumentList"/>
+	</bean>
+	<bean id="pipJumpCutOffCalculator" class="com.precioustech.fxtrading.marketdata.PipJumpCutOffCalculatorService">
+		<constructor-arg index="0">
+			<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument">
+				<constructor-arg index="0" value="EUR_USD"/>
+			</bean>
+		</constructor-arg>
+		<constructor-arg index="1" ref="currentPriceInfoProvider"/>
+		<constructor-arg index="2" value="#{tradingConfig.fadeTheMoveJumpReqdToTrade}"/>
+		<constructor-arg index="3" ref="instrumentService"/>		
 	</bean>
 	<bean id="copyTwitterStrategy" class="com.precioustech.fxtrading.tradingbot.strategies.CopyTwitterStrategy"/>
 	<bean id="tweetFXTradeService" class="com.precioustech.fxtrading.tradingbot.social.twitter.tweethandler.TweetFXTradeService"/>

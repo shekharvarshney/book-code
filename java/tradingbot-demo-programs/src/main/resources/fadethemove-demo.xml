@@ -46,4 +46,19 @@
 		<constructor-arg index="1" value="#{ systemProperties['oanda.accountId'] }"/>
 		<constructor-arg index="2" value="#{ systemProperties['oanda.accessToken'] }"/>
 	</bean>
+	<bean id="currentPriceInfoProvider" class="com.precioustech.fxtrading.oanda.restapi.marketdata.OandaCurrentPriceInfoProvider">
+		<constructor-arg index="0" value="#{ systemProperties['oanda.url'] }"/>
+		<constructor-arg index="1" value="#{ systemProperties['oanda.accessToken'] }"/>
+	</bean>
+	<bean id="pipJumpCutOffCalculator" class="com.precioustech.fxtrading.marketdata.PipJumpCutOffCalculatorService">
+		<constructor-arg index="0">
+			<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument">
+				<constructor-arg index="0" value="EUR_USD"/>
+			</bean>
+		</constructor-arg>
+		<constructor-arg index="1" ref="currentPriceInfoProvider"/>
+		<constructor-arg index="2" value="#{tradingConfig.fadeTheMoveJumpReqdToTrade}"/>
+		<constructor-arg index="3" ref="instrumentService"/>
+		
+	</bean>
 </beans>
