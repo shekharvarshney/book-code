@@ -131,6 +131,7 @@
 			<list>
 				<value>SignalFactory</value>
 				<value>Forex_EA4U</value>
+				<value>TheDailyIncome</value>
 			</list>
 		</constructor-arg>
 	</bean>
@@ -143,6 +144,11 @@
 		<entry key="#{fxTweeterList[1]}">
 			<bean class="com.precioustech.fxtrading.tradingbot.social.twitter.tweethandler.ZuluTrader101FXTweetHandler">
 				<constructor-arg index="0" value="#{fxTweeterList[1]}"/>
+			</bean>
+		</entry>
+		<entry key="#{fxTweeterList[2]}">
+			<bean class="com.precioustech.fxtrading.tradingbot.social.twitter.tweethandler.TheDailyIncomeFXTweetHandler">
+				<constructor-arg index="0" value="#{fxTweeterList[2]}"/>
 			</bean>
 		</entry>
 	</util:map>

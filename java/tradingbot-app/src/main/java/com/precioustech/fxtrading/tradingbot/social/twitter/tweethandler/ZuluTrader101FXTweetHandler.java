@@ -48,7 +48,7 @@ public class ZuluTrader101FXTweetHandler extends AbstractFXTweetHandler<String> 
 		super(userId);
 	}
 
-	private int idxOfTP(String[] tokens) {
+	protected int idxOfTP(String[] tokens) {
 		int idx = 0;
 		for (String token : tokens) {
 			if ("TP".equals(token)) {
@@ -59,7 +59,7 @@ public class ZuluTrader101FXTweetHandler extends AbstractFXTweetHandler<String> 
 		return -1;
 	}
 
-	private int idxOfSL(String[] tokens) {
+	protected int idxOfSL(String[] tokens) {
 		int idx = 0;
 		for (String token : tokens) {
 			if ("SL".equals(token)) {
