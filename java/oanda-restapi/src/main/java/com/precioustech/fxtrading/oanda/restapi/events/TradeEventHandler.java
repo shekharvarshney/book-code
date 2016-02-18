@@ -104,7 +104,10 @@ public class TradeEventHandler implements EventHandler<JSONObject, TradeEventPay
 				origTransactionId,
 				accountId);
 		if (origTransaction == null) {
-			return null;
+			String side = jsonPayLoad.get(OandaJsonKeys.side).toString();
+			TradingSignal signal = OandaUtils.toTradingSignal(side);
+			return String.format("Closed %s %d units of %s@%2.5f.", signal.flip().name(), tradeUnits,
+					instrumentAsHashtag, price);
 		}
 
 		double pips = 0;

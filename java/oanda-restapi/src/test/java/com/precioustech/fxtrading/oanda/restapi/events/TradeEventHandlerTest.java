@@ -140,6 +140,12 @@ public class TradeEventHandlerTest {
 		assertNotNull(tweet);
 		assertEquals("Closed LONG 200 units of #EURCHF@1.10325 for -67.5 pips.", tweet);
 
+		when(transactionDataProvider.getTransaction(OandaTestConstants.tradeId, OandaTestConstants.accountId))
+				.thenReturn(null);
+		when(jsonPayLoad.get(OandaJsonKeys.side)).thenReturn("sell");
+		tweet = eventHandler.toTweet(payLoad);
+		assertNotNull(tweet);
+		assertEquals("Closed LONG 200 units of #EURCHF@1.10325.", tweet);
 		// unsupported event
 		TradeEventPayLoad payload2 = new TradeEventPayLoad(TradeEvents.MIGRATE_TRADE_CLOSE, jsonPayLoad);
 		assertNull(eventHandler.toTweet(payload2));
