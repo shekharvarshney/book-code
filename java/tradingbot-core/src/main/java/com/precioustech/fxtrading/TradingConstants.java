@@ -27,4 +27,5 @@ public class TradingConstants {
 	public static final String SPACE_RGX = "\\s+";
 	public static final String PIPE_CHR = "|";
 	public static final String CURRENCY_PAIR_SEP_UNDERSCORE = "_";
+	public static final String COLON = ":";
 }

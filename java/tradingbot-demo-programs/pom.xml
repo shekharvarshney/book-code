@@ -7,6 +7,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <spring.framework.version>4.1.1.RELEASE</spring.framework.version>
     <spring.framework.social.version>1.1.0.RELEASE</spring.framework.social.version>
+    <jdk.version>1.8</jdk.version>
   </properties>
   <dependencies>
   	<dependency>
@@ -26,4 +27,17 @@
 	</dependency>
 	
   </dependencies>
+  <build>
+     <defaultGoal>install</defaultGoal>
+     <plugins>
+          <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-compiler-plugin</artifactId>
+               <configuration>
+                    <source>${jdk.version}</source>
+                    <target>${jdk.version}</target>
+               </configuration>
+          </plugin>
+      </plugins>
+  </build>
 </project>
