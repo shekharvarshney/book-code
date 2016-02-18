@@ -51,6 +51,8 @@ public abstract class AbstractFXTweetHandler<T> implements FXTweetHandler<T> {
 	protected static final String CLOSED = "Closed";
 	protected static final String BOUGHT = "Bought";
 	protected static final String SOLD = "Sold";
+	protected static final String TP = "TP";
+	protected static final String SL = "SL";
 	protected static final Logger LOG = Logger.getLogger(AbstractFXTweetHandler.class);
 	static final String FROM_USER_SINCE_TIME_TWITTER_QRY_TMPL = "from:%s since:%s";
 	static final String FROM_USER_SINCE_ID_TWITTER_QRY_TMPL = "from:%s since_id:%d";

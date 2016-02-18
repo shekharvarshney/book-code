@@ -22,7 +22,7 @@
 	<bean id="findEventBusSubscribers" class="com.precioustech.fxtrading.tradingbot.spring.FindEventBusSubscribers"/>
 	<bean id="tradingConfig" class="com.precioustech.fxtrading.tradingbot.TradingConfig">
 		<property name="minReserveRatio" value="0.1"/>
-		<property name="maxAllowedQuantity" value="200"/>
+		<property name="maxAllowedQuantity" value="500"/>
 		<property name="maxAllowedNetContracts" value="5"/>
 		<property name="minAmountRequired" value="100.0"/>
 		<property name="mailTo" value="${mail.to}"/>
@@ -132,6 +132,9 @@
 				<value>SignalFactory</value>
 				<value>Forex_EA4U</value>
 				<value>TheDailyIncome</value>
+				<value>ThirdBrainFx2</value>
+				<value>ThirdBrainFx</value>
+				<value>quantalpha24</value>
 			</list>
 		</constructor-arg>
 	</bean>
@@ -149,6 +152,21 @@
 		<entry key="#{fxTweeterList[2]}">
 			<bean class="com.precioustech.fxtrading.tradingbot.social.twitter.tweethandler.TheDailyIncomeFXTweetHandler">
 				<constructor-arg index="0" value="#{fxTweeterList[2]}"/>
+			</bean>
+		</entry>
+		<entry key="#{fxTweeterList[3]}">
+			<bean class="com.precioustech.fxtrading.tradingbot.social.twitter.tweethandler.ThirdBrainFx2TweetHandler">
+				<constructor-arg index="0" value="#{fxTweeterList[3]}"/>
+			</bean>
+		</entry>
+		<entry key="#{fxTweeterList[4]}">
+			<bean class="com.precioustech.fxtrading.tradingbot.social.twitter.tweethandler.ThirdBrainFx2TweetHandler">
+				<constructor-arg index="0" value="#{fxTweeterList[4]}"/>
+			</bean>
+		</entry>
+		<entry key="#{fxTweeterList[5]}">
+			<bean class="com.precioustech.fxtrading.tradingbot.social.twitter.tweethandler.TheDailyIncomeFXTweetHandler">
+				<constructor-arg index="0" value="#{fxTweeterList[5]}"/>
 			</bean>
 		</entry>
 	</util:map>
