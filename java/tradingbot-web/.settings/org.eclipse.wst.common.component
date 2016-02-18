@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+	<wb-module deploy-name="tradingbot-web">
+        <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
+		<wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
+		<wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
+		<wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
+        <dependent-module archiveName="tradingbot-core-1.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/tradingbot-core/tradingbot-core">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="tradingbot-app-1.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/tradingbot-app/tradingbot-app">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="oanda-restapi-1.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/oanda-restapi/oanda-restapi">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+		<property name="java-output-path" value="target/classes"/>
+        <property name="context-root" value="tradingbot"/>
+	</wb-module>
+</project-modules>
