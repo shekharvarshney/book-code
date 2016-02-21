@@ -48,4 +48,8 @@ public enum CandleStickGranularity {
 	public long getGranularityInSeconds() {
 		return granularityInSeconds;
 	}
+
+	public String getLabel() {
+		return name();
+	}
 }
