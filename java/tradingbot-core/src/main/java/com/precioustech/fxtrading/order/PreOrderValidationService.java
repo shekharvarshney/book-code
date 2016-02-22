@@ -68,7 +68,7 @@ public class PreOrderValidationService<M, N, K> {
 		} else {
 			LOG.info(String.format(
 					"Rejecting %s  %s because price %2.5f is 10pct on either side of wma 10yr price of %2.5f", signal,
-					instrument, price, wma10yr));
+					instrument.getInstrument(), price, wma10yr));
 			return false;
 		}
 	}
@@ -76,12 +76,12 @@ public class PreOrderValidationService<M, N, K> {
 	public boolean checkInstrumentNotAlreadyTraded(TradeableInstrument<N> instrument) {
 		Collection<K> accIds = this.tradeInfoService.findAllAccountsWithInstrumentTrades(instrument);
 		if (accIds.size() > 0) {
-			LOG.warn(String.format("Trade with instrument %s as one already exists", instrument));
+			LOG.warn(String.format("Trade with instrument %s as one already exists", instrument.getInstrument()));
 			return false;
 		} else {
 			Collection<Order<N, M>> pendingOrders = this.orderInfoService.pendingOrdersForInstrument(instrument);
 			if (!pendingOrders.isEmpty()) {
-				LOG.warn(String.format("Pending order with instrument %s already exists", instrument));
+				LOG.warn(String.format("Pending order with instrument %s already exists", instrument.getInstrument()));
 				return false;
 			}
 			return true;
@@ -98,7 +98,8 @@ public class PreOrderValidationService<M, N, K> {
 			if (Math.abs(newPositionCount) > this.baseTradingConfig.getMaxAllowedNetContracts()
 					&& Integer.signum(sign) == Integer.signum(positionCount)) {
 				LOG.warn(String.format("Cannot place trade %s because max limit exceeded. max allowed=%d and "
-						+ "current net positions=%d for currency %s", instrument, this.baseTradingConfig
+								+ "current net positions=%d for currency %s",
+						instrument.getInstrument(), this.baseTradingConfig
 						.getMaxAllowedNetContracts(), newPositionCount, currency));
 				return false;
 			}
