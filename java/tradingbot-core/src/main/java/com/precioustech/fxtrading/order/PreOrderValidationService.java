@@ -28,8 +28,6 @@ import com.precioustech.fxtrading.trade.TradeInfoService;
 import com.precioustech.fxtrading.utils.TradingUtils;
 
 /**
- * 
- * @author shekhar
  *
  * @param <M>
  *            The type of tradeId
@@ -76,7 +74,8 @@ public class PreOrderValidationService<M, N, K> {
 	public boolean checkInstrumentNotAlreadyTraded(TradeableInstrument<N> instrument) {
 		Collection<K> accIds = this.tradeInfoService.findAllAccountsWithInstrumentTrades(instrument);
 		if (accIds.size() > 0) {
-			LOG.warn(String.format("Trade with instrument %s as one already exists", instrument.getInstrument()));
+			LOG.warn(String.format("Rejecting trade with instrument %s as trade already exists",
+					instrument.getInstrument()));
 			return false;
 		} else {
 			Collection<Order<N, M>> pendingOrders = this.orderInfoService.pendingOrdersForInstrument(instrument);
@@ -98,7 +97,7 @@ public class PreOrderValidationService<M, N, K> {
 			if (Math.abs(newPositionCount) > this.baseTradingConfig.getMaxAllowedNetContracts()
 					&& Integer.signum(sign) == Integer.signum(positionCount)) {
 				LOG.warn(String.format("Cannot place trade %s because max limit exceeded. max allowed=%d and "
-								+ "current net positions=%d for currency %s",
+								+ "future net positions=%d for currency %s if trade executed",
 						instrument.getInstrument(), this.baseTradingConfig
 						.getMaxAllowedNetContracts(), newPositionCount, currency));
 				return false;
