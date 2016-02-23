@@ -27,12 +27,15 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.twitter.api.Tweet;
 
 import com.google.common.collect.Lists;
 import com.precioustech.fxtrading.TradingDecision;
 import com.precioustech.fxtrading.TradingSignal;
 import com.precioustech.fxtrading.instrument.TradeableInstrument;
+import com.precioustech.fxtrading.marketdata.CurrentPriceInfoProvider;
+import com.precioustech.fxtrading.marketdata.Price;
 import com.precioustech.fxtrading.trade.strategies.TradingStrategy;
 import com.precioustech.fxtrading.tradingbot.social.twitter.CloseFXTradeTweet;
 import com.precioustech.fxtrading.tradingbot.social.twitter.FXTradeTweet;
@@ -47,6 +50,8 @@ public class CopyTwitterStrategy<T> implements TweetHarvester<T> {
 	Map<String, FXTweetHandler<T>> tweetHandlerMap;
 	@Resource(name = "orderQueue")
 	BlockingQueue<TradingDecision<T>> orderQueue;
+	@Autowired
+	CurrentPriceInfoProvider<T> currentPriceInfoProvider;
 	private static final Logger LOG = Logger.getLogger(CopyTwitterStrategy.class);
 	private ExecutorService executorService = null;
 	private static final double ACCURACY_DESIRED = 0.75;
@@ -57,6 +62,7 @@ public class CopyTwitterStrategy<T> implements TweetHarvester<T> {
 		this.executorService = Executors.newFixedThreadPool(tweetHandlerMap.size());
 	}
 
+	@SuppressWarnings("unchecked")
 	TradingDecision<T> analyseHistoricClosedTradesForInstrument(Collection<CloseFXTradeTweet<T>> closedTrades,
 			NewFXTradeTweet<T> newTrade) {
 		int lossCtr = 0;
@@ -74,16 +80,25 @@ public class CopyTwitterStrategy<T> implements TweetHarvester<T> {
 			double lossAccuracy = 1.0 - profitAccuracy;
 			if (profitAccuracy >= ACCURACY_DESIRED) {
 				signal = newTrade.getAction();
-				return new TradingDecision<T>(newTrade.getInstrument(), signal, newTrade.getTakeProfit(), newTrade
-						.getStopLoss(), newTrade.getPrice(), TradingDecision.SRCDECISION.SOCIAL_MEDIA);
-			} else if (lossAccuracy >= ACCURACY_DESIRED) {/*execute an opposite trade as the loss accuracy is quite high*/
+				return new TradingDecision<T>(newTrade.getInstrument(), signal, newTrade.getTakeProfit(),
+						newTrade.getStopLoss(), newTrade.getPrice(), TradingDecision.SRCDECISION.SOCIAL_MEDIA);
+			} else if (lossAccuracy >= ACCURACY_DESIRED) {
+				// execute an opposite trade as the loss accuracy is quite high
 				signal = newTrade.getAction().flip();
-				final double takeProfit = newTrade.getTakeProfit() != 0 ? newTrade.getPrice()
-						+ (newTrade.getPrice() - newTrade.getTakeProfit()) : newTrade.getTakeProfit();
-				final double stopLoss = newTrade.getStopLoss() != 0.0 ? newTrade.getPrice()
-						+ (newTrade.getPrice() - newTrade.getStopLoss()) : newTrade.getStopLoss();
-				return new TradingDecision<T>(newTrade.getInstrument(), signal, takeProfit, stopLoss, newTrade
-						.getPrice(), TradingDecision.SRCDECISION.SOCIAL_MEDIA);
+				double price = newTrade.getPrice();
+				if (price == 0.0) {// price not provided, get current price
+					Map<TradeableInstrument<T>, Price<T>> priceMap = this.currentPriceInfoProvider
+							.getCurrentPricesForInstruments(Lists.newArrayList(newTrade.getInstrument()));
+					Price<T> instrumentPrice = priceMap.get(newTrade.getInstrument());
+					price = signal == TradingSignal.LONG ? instrumentPrice.getAskPrice()
+							: instrumentPrice.getBidPrice();
+				}
+				final double takeProfit = newTrade.getTakeProfit() != 0 ? price + (price - newTrade.getTakeProfit())
+						: newTrade.getTakeProfit();
+				final double stopLoss = newTrade.getStopLoss() != 0.0 ? price + (price - newTrade.getStopLoss())
+						: newTrade.getStopLoss();
+				return new TradingDecision<T>(newTrade.getInstrument(), signal, takeProfit, stopLoss, price,
+						TradingDecision.SRCDECISION.SOCIAL_MEDIA);
 			}
 		}
 		return new TradingDecision<T>(newTrade.getInstrument(), signal);
@@ -98,8 +113,8 @@ public class CopyTwitterStrategy<T> implements TweetHarvester<T> {
 				public Void call() throws Exception {
 					Collection<NewFXTradeTweet<T>> newTradeTweets = harvestNewTradeTweets(userId);
 					for (NewFXTradeTweet<T> newTradeTweet : newTradeTweets) {
-						Collection<CloseFXTradeTweet<T>> pnlTweets = harvestHistoricTradeTweets(userId, newTradeTweet
-								.getInstrument());
+						Collection<CloseFXTradeTweet<T>> pnlTweets = harvestHistoricTradeTweets(userId,
+								newTradeTweet.getInstrument());
 						TradingDecision<T> tradeDecision = analyseHistoricClosedTradesForInstrument(pnlTweets,
 								newTradeTweet);
 						if (tradeDecision.getSignal() != TradingSignal.NONE) {
@@ -137,7 +152,8 @@ public class CopyTwitterStrategy<T> implements TweetHarvester<T> {
 	}
 
 	@Override
-	public Collection<CloseFXTradeTweet<T>> harvestHistoricTradeTweets(String userId, TradeableInstrument<T> instrument) {
+	public Collection<CloseFXTradeTweet<T>> harvestHistoricTradeTweets(String userId,
+			TradeableInstrument<T> instrument) {
 		FXTweetHandler<T> tweetHandler = tweetHandlerMap.get(userId);
 		if (tweetHandler == null) {
 			return Collections.emptyList();

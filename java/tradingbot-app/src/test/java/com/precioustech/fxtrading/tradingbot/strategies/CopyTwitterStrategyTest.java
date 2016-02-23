@@ -17,6 +17,7 @@ package com.precioustech.fxtrading.tradingbot.strategies;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -25,6 +26,7 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.social.twitter.api.Tweet;
 
@@ -33,6 +35,8 @@ import com.google.common.collect.Maps;
 import com.precioustech.fxtrading.TradingDecision;
 import com.precioustech.fxtrading.TradingSignal;
 import com.precioustech.fxtrading.instrument.TradeableInstrument;
+import com.precioustech.fxtrading.marketdata.CurrentPriceInfoProvider;
+import com.precioustech.fxtrading.marketdata.Price;
 import com.precioustech.fxtrading.tradingbot.TradingAppTestConstants;
 import com.precioustech.fxtrading.tradingbot.social.twitter.CloseFXTradeTweet;
 import com.precioustech.fxtrading.tradingbot.social.twitter.NewFXTradeTweet;
@@ -174,6 +178,31 @@ public class CopyTwitterStrategyTest {
 		assertEquals(1.1085, tradingDecision.getTakeProfitPrice(), TradingAppTestConstants.precision);
 		assertEquals(1.0665, tradingDecision.getStopLossPrice(), TradingAppTestConstants.precision);
 		assertEquals(price, tradingDecision.getLimitPrice(), ZERO);
+
+		stopLoss = 15.0545;
+		takeProfit = 15.0985;
+		price = 0.0;
+		TradeableInstrument<String> usdzar = new TradeableInstrument<>("USD_ZAR");
+		NewFXTradeTweet<String> newTrade3 = mock(NewFXTradeTweet.class);
+		when(newTrade3.getAction()).thenReturn(TradingSignal.LONG);
+		when(newTrade3.getInstrument()).thenReturn(usdzar);
+		when(newTrade3.getTakeProfit()).thenReturn(takeProfit);
+		when(newTrade3.getStopLoss()).thenReturn(stopLoss);
+		when(newTrade3.getPrice()).thenReturn(price);
+		closedTrades = createClosedTrades(profits2);
+		CurrentPriceInfoProvider<String> currPriceInfoProvider = mock(CurrentPriceInfoProvider.class);
+		copyTwitterStrategy.currentPriceInfoProvider = currPriceInfoProvider;
+		Map<TradeableInstrument<String>, Price<String>> priceMap = Maps.newHashMap();
+		Price<String> usdzarPrice = new Price<>(usdzar, 15.0715, 15.0727, DateTime.now());
+		priceMap.put(usdzar, usdzarPrice);
+		when(currPriceInfoProvider.getCurrentPricesForInstruments(eq(Lists.newArrayList(usdzar)))).thenReturn(priceMap);
+		tradingDecision = copyTwitterStrategy.analyseHistoricClosedTradesForInstrument(closedTrades, newTrade3);
+		assertEquals(TradingSignal.SHORT, tradingDecision.getSignal());
+		assertEquals(TradingDecision.SRCDECISION.SOCIAL_MEDIA, tradingDecision.getTradeSource());
+		assertEquals(usdzar, tradingDecision.getInstrument());
+		assertEquals(15.0445, tradingDecision.getTakeProfitPrice(), TradingAppTestConstants.precision);
+		assertEquals(15.0885, tradingDecision.getStopLossPrice(), TradingAppTestConstants.precision);
+		assertEquals(15.0715, tradingDecision.getLimitPrice(), ZERO);
 	}
 
 	private Collection<CloseFXTradeTweet<String>> createClosedTrades(double[] profits) {
