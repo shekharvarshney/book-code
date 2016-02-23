@@ -169,7 +169,8 @@ public class OandaOrderManagementProvider implements OrderManagementProvider<Lon
 				}
 
 			} else {
-				LOG.info("Order not executed. http code=" + resp.getStatusLine().getStatusCode());
+				LOG.info(String.format("Order not executed. http code=%d. Order pojo->%s",
+						resp.getStatusLine().getStatusCode(), order.toString()));
 				return null;
 			}
 		} catch (Exception e) {
