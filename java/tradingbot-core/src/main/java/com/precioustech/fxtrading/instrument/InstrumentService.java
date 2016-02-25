@@ -32,11 +32,15 @@ public class InstrumentService<T> {
 	public InstrumentService(InstrumentDataProvider<T> instrumentDataProvider) {
 		Preconditions.checkNotNull(instrumentDataProvider);
 		Collection<TradeableInstrument<T>> instruments = instrumentDataProvider.getInstruments();
-		Map<String, TradeableInstrument<T>> tradeableInstrumenMap = Maps.newHashMap();
+		Map<String, TradeableInstrument<T>> tradeableInstrumenMap = Maps.newTreeMap();
 		for (TradeableInstrument<T> instrument : instruments) {
 			tradeableInstrumenMap.put(instrument.getInstrument(), instrument);
 		}
 		this.instrumentMap = Collections.unmodifiableMap(tradeableInstrumenMap);
+	}
+
+	public Collection<TradeableInstrument<T>> getInstruments() {
+		return this.instrumentMap.values();
 	}
 
 	public Collection<TradeableInstrument<T>> getAllPairsWithCurrency(String currency) {
