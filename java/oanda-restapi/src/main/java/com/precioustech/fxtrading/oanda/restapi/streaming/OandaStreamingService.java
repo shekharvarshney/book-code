@@ -108,9 +108,7 @@ public abstract class OandaStreamingService implements HeartBeatStreamingService
 
 	@Override
 	public void startHeartBeatStreaming() {
-		if (!serviceUp) {
-			startStreaming();
-		}
+		startStreaming();
 	}
 
 	@Override

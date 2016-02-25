@@ -38,7 +38,7 @@ public abstract class AbstractHeartBeatService<T> {
 	private final Map<String, HeartBeatPayLoad<T>> payLoadMap = Maps.newConcurrentMap();
 	volatile boolean serviceUp = true;
 	protected final Collection<HeartBeatStreamingService> heartBeatStreamingServices;
-	protected final long initWait = 2000L;
+	protected final long initWait = 10000L;
 	long warmUpTime = MAX_HEARTBEAT_DELAY;/*accessibility package friendly for unit testing*/
 
 	public AbstractHeartBeatService(Collection<HeartBeatStreamingService> heartBeatStreamingServices) {
