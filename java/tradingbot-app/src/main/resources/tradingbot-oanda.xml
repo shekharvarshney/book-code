@@ -114,6 +114,7 @@
 				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="EUR_NZD"/></bean>
 				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="GBP_CHF"/></bean>
 				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="EUR_JPY"/></bean>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="GBP_NZD"/></bean>
 			</list>
 		</constructor-arg>
 	</bean>
