@@ -42,7 +42,7 @@ public class OandaHistoricMarketDataProviderTest {
 		String url = service.getFromToUrl(new TradeableInstrument<String>("CHF_JPY"), CandleStickGranularity.S5,
 				new DateTime(1442950140000L), new DateTime(1442960940000L));
 		assertEquals(
-				"https://api-fxtrade.oanda.com/v1/candles?instrument=CHF_JPY&candleFormat=midpoint&granularity=S5&dailyAlignment=0&alignmentTimezone=Europe%2FLondon&start=1442950140000000&end=1442960940000000",
+				"https://api-fxtrade.oanda.com/v1/candles?instrument=CHF_JPY&candleFormat=midpoint&granularity=S5&dailyAlignment=0&alignmentTimezone=GMT&start=1442950140000000&end=1442960940000000",
 				url);
 	}
 
@@ -52,7 +52,7 @@ public class OandaHistoricMarketDataProviderTest {
 				OandaTestConstants.accessToken);
 		String url = service.getCountUrl(new TradeableInstrument<String>("GBP_USD"), CandleStickGranularity.H1, 2);
 		assertEquals(
-				"https://api-fxtrade.oanda.com/v1/candles?instrument=GBP_USD&candleFormat=midpoint&granularity=H1&dailyAlignment=0&alignmentTimezone=Europe%2FLondon&count=2",
+				"https://api-fxtrade.oanda.com/v1/candles?instrument=GBP_USD&candleFormat=midpoint&granularity=H1&dailyAlignment=0&alignmentTimezone=GMT&count=2",
 				url);
 	}
 
