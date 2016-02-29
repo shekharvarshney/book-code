@@ -39,6 +39,7 @@ public class OandaJsonKeys {
 	public static final String ask = "ask";
 	public static final String heartbeat = "heartbeat";
 	public static final String candles = "candles";
+	public static final String code = "code";
 	public static final String openMid = "openMid";
 	public static final String highMid = "highMid";
 	public static final String lowMid = "lowMid";

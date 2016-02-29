@@ -17,11 +17,13 @@ package com.precioustech.fxtrading.oanda.restapi.marketdata.historic;
 
 import static com.precioustech.fxtrading.oanda.restapi.OandaJsonKeys.candles;
 import static com.precioustech.fxtrading.oanda.restapi.OandaJsonKeys.closeMid;
+import static com.precioustech.fxtrading.oanda.restapi.OandaJsonKeys.code;
 import static com.precioustech.fxtrading.oanda.restapi.OandaJsonKeys.highMid;
 import static com.precioustech.fxtrading.oanda.restapi.OandaJsonKeys.lowMid;
 import static com.precioustech.fxtrading.oanda.restapi.OandaJsonKeys.openMid;
 import static com.precioustech.fxtrading.oanda.restapi.OandaJsonKeys.time;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -50,8 +52,11 @@ public class OandaHistoricMarketDataProvider implements HistoricMarketDataProvid
 
 	private final String url;
 	private final BasicHeader authHeader;
-	private static final String tzLondon = "Europe%2FLondon";
+	private static final String tzGMT = "GMT";// "Europe%2FLondon";
 	private static final Logger LOG = Logger.getLogger(OandaHistoricMarketDataProvider.class);
+	static final int LIMIT_ERR_CODE = 36;
+	static final int MAX_CANDLES_COUNT = 5000;// max candles allowed by OANDA
+												// platform
 
 	public OandaHistoricMarketDataProvider(String url, String accessToken) {
 		this.url = url;
@@ -63,27 +68,114 @@ public class OandaHistoricMarketDataProvider implements HistoricMarketDataProvid
 		return String
 				.format("%s%s?instrument=%s&candleFormat=midpoint&granularity=%s&dailyAlignment=0&alignmentTimezone=%s&start=%d&end=%d",
 						this.url, OandaConstants.CANDLES_RESOURCE, instrument.getInstrument(), granularity.name(),
-						tzLondon, TradingUtils.toUnixTime(from), TradingUtils.toUnixTime(to));
+						tzGMT, TradingUtils.toUnixTime(from), TradingUtils.toUnixTime(to));
+	}
+
+	String getFromCountUrl(TradeableInstrument<String> instrument, CandleStickGranularity granularity, DateTime from,
+			int count) {
+		return String.format(
+				"%s%s?instrument=%s&candleFormat=midpoint&granularity=%s&dailyAlignment=0&alignmentTimezone=%s&start=%d&count=%d",
+				this.url, OandaConstants.CANDLES_RESOURCE, instrument.getInstrument(), granularity.name(), tzGMT,
+				TradingUtils.toUnixTime(from), count);
+	}
+
+	String getToCountUrl(TradeableInstrument<String> instrument, CandleStickGranularity granularity, DateTime to,
+			int count) {
+		return String.format(
+				"%s%s?instrument=%s&candleFormat=midpoint&granularity=%s&dailyAlignment=0&alignmentTimezone=%s&end=%d&count=%d",
+				this.url, OandaConstants.CANDLES_RESOURCE, instrument.getInstrument(), granularity.name(), tzGMT,
+				TradingUtils.toUnixTime(to), count);
 	}
 
 	String getCountUrl(TradeableInstrument<String> instrument, CandleStickGranularity granularity, int count) {
 		return String
 				.format("%s%s?instrument=%s&candleFormat=midpoint&granularity=%s&dailyAlignment=0&alignmentTimezone=%s&count=%d",
 						this.url, OandaConstants.CANDLES_RESOURCE, instrument.getInstrument(), granularity.name(),
-						tzLondon, count);
+						tzGMT, count);
 	}
+
 
 	@Override
 	public List<CandleStick<String>> getCandleSticks(TradeableInstrument<String> instrument,
 			CandleStickGranularity granularity, DateTime from, DateTime to) {
-		return getCandleSticks(instrument, getFromToUrl(instrument, granularity, from, to), granularity);
+		try {
+			return getCandleSticks(instrument, getFromToUrl(instrument, granularity, from, to), granularity);
+		} catch (OandaLimitExceededException leex) {
+			try {
+				List<CandleStick<String>> allCandles = Lists.newArrayList();
+				allCandles = getCandleSticks(instrument,
+						getFromCountUrl(instrument, granularity, from, MAX_CANDLES_COUNT), granularity);
+				DateTime lastDate = allCandles.get(allCandles.size() - 1).getEventDate();
+				long batchesReqd = (to.getMillis() - lastDate.getMillis()) / (lastDate.getMillis() - from.getMillis())
+						+ 1;
+
+				DateTime start = lastDate.plusSeconds((int) granularity.getGranularityInSeconds());
+
+				for (long batch = 1; batch <= batchesReqd; batch++) {
+					List<CandleStick<String>> batchCandles = null;
+					if (batch == batchesReqd) {
+						batchCandles = getCandleSticks(instrument, getFromToUrl(instrument, granularity, start, to),
+								granularity);
+					} else {
+						batchCandles = getCandleSticks(instrument,
+								getFromCountUrl(instrument, granularity, start, MAX_CANDLES_COUNT), granularity);
+					}
+					start = batchCandles.get(batchCandles.size() - 1).getEventDate()
+							.plusSeconds((int) granularity.getGranularityInSeconds());
+					allCandles.addAll(batchCandles);
+				}
+
+				return allCandles;
+			} catch (OandaLimitExceededException e) {
+				LOG.error("limit exceedeed error encountered again", e);
+			}
+			return Collections.emptyList();
+		}
 	}
 
 	@Override
 	public List<CandleStick<String>> getCandleSticks(TradeableInstrument<String> instrument,
 			CandleStickGranularity granularity, int count) {
+		try {
+			if (count > MAX_CANDLES_COUNT) {
+				List<List<CandleStick<String>>> batchesList = Lists.newArrayList();
+				List<CandleStick<String>> last5KCandles = getCandleSticks(instrument,
+						getCountUrl(instrument, granularity, MAX_CANDLES_COUNT), granularity);
+				if (last5KCandles.size() < MAX_CANDLES_COUNT) {
+					return last5KCandles;
+				} else {
+					batchesList.add(last5KCandles);
+					int batchesReqd = (count - MAX_CANDLES_COUNT) / MAX_CANDLES_COUNT + 1;
+					DateTime endDate = last5KCandles.get(0).getEventDate();
+					for (int batch = 1; batch <= batchesReqd; batch++) {
+						List<CandleStick<String>> batchCandles = null;
+						int batchCt = MAX_CANDLES_COUNT;
+						if (batch == batchesReqd) {
+							batchCt = count % MAX_CANDLES_COUNT;
 
-		return getCandleSticks(instrument, getCountUrl(instrument, granularity, count), granularity);
+						}
+						batchCandles = getCandleSticks(instrument,
+								getToCountUrl(instrument, granularity, endDate, batchCt), granularity);
+						batchesList.add(batchCandles);
+						if (batchCandles.size() < MAX_CANDLES_COUNT) {
+							break;
+						} else {
+							endDate = batchCandles.get(0).getEventDate();
+						}
+					}
+					List<CandleStick<String>> allBatches = Lists.newArrayList();
+					for (int i = batchesList.size() - 1; i >= 0; i--) {
+						allBatches.addAll(batchesList.get(i));
+					}
+					return allBatches;
+				}
+			}
+
+			return getCandleSticks(instrument, getCountUrl(instrument, granularity, count), granularity);
+		} catch (OandaLimitExceededException leex) {
+			LOG.error("unexpected limit exceedeed error encountered", leex);
+			return Collections.emptyList();
+		}
 	}
 
 	CloseableHttpClient getHttpClient() {
@@ -91,7 +183,7 @@ public class OandaHistoricMarketDataProvider implements HistoricMarketDataProvid
 	}
 
 	private List<CandleStick<String>> getCandleSticks(TradeableInstrument<String> instrument, String url,
-			CandleStickGranularity granularity) {
+			CandleStickGranularity granularity) throws OandaLimitExceededException {
 		List<CandleStick<String>> allCandleSticks = Lists.newArrayList();
 		CloseableHttpClient httpClient = getHttpClient();
 		try {
@@ -120,8 +212,17 @@ public class OandaHistoricMarketDataProvider implements HistoricMarketDataProvid
 					allCandleSticks.add(candle);
 				}
 			} else {
-				TradingUtils.printErrorMsg(resp);
+				String errResponse = TradingUtils.getResponse(resp);
+				Object obj = JSONValue.parse(errResponse);
+				JSONObject jsonResp = (JSONObject) obj;
+				int errCode = Integer.parseInt(jsonResp.get(code).toString());
+				if (errCode == LIMIT_ERR_CODE) {
+					throw new OandaLimitExceededException();
+				}
+				System.err.println(errResponse);
 			}
+		} catch (OandaLimitExceededException leex) {
+			throw leex;
 		} catch (Exception e) {
 			LOG.error(e);
 		} finally {

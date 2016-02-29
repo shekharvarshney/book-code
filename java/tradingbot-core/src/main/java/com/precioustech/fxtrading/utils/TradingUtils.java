@@ -244,8 +244,13 @@ public class TradingUtils {
 	 * @throws IOException
 	 */
 	public static void printErrorMsg(HttpResponse response) throws ParseException, IOException {
+		String responseString = getResponse(response);
+		System.err.println(responseString);
+	}
+
+	public static String getResponse(HttpResponse response) throws ParseException, IOException {
 		HttpEntity entity = response.getEntity();
 		String responseString = EntityUtils.toString(entity, "UTF-8");
-		System.err.println(responseString);
+		return responseString;
 	}
 }
