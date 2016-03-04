@@ -50,7 +50,7 @@ public class PreOrderValidationServiceTest<M, N, K> {
 		when(baseTradingCfg.getMax10yrWmaOffset()).thenReturn(0.1);
 		TradeableInstrument<N> eurusd = new TradeableInstrument<N>("EUR_USD");
 		when(
-				movingAvgCalcService.calculateWMA(eq(eurusd), eq(PreOrderValidationService.TEN_YRS_IN_MTHS),
+				movingAvgCalcService.calculateWMA(eq(eurusd), eq(PreOrderValidationService.FIVE_YRS_IN_MTHS),
 						eq(CandleStickGranularity.M))).thenReturn(1.22);
 
 		assertTrue(service.isInSafeZone(TradingSignal.LONG, 1.3, eurusd));

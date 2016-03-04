@@ -43,7 +43,7 @@ public class PreOrderValidationService<M, N, K> {
 	private final MovingAverageCalculationService<N> movingAverageCalculationService;
 	private final BaseTradingConfig baseTradingConfig;
 	private final OrderInfoService<M, N, K> orderInfoService;
-	static final int TEN_YRS_IN_MTHS = 120;
+	static final int FIVE_YRS_IN_MTHS = 60;
 
 	public PreOrderValidationService(TradeInfoService<M, N, K> tradeInfoService,
 			MovingAverageCalculationService<N> movingAverageCalculationService, BaseTradingConfig baseTradingConfig,
@@ -56,7 +56,7 @@ public class PreOrderValidationService<M, N, K> {
 
 	public boolean isInSafeZone(TradingSignal signal, double price, TradeableInstrument<N> instrument) {
 		// check 10yr wma and make sure we are 10% on either side
-		double wma10yr = this.movingAverageCalculationService.calculateWMA(instrument, TEN_YRS_IN_MTHS,
+		double wma10yr = this.movingAverageCalculationService.calculateWMA(instrument, FIVE_YRS_IN_MTHS,
 				CandleStickGranularity.M);
 		final double max10yrWmaOffset = baseTradingConfig.getMax10yrWmaOffset();
 		double minPrice = (1.0 - max10yrWmaOffset) * wma10yr;
