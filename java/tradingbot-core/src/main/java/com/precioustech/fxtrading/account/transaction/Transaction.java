@@ -22,6 +22,7 @@ import com.precioustech.fxtrading.events.Event;
 import com.precioustech.fxtrading.instrument.TradeableInstrument;
 
 public class Transaction<M, N, T> {
+
 	private final M transactionId;
 	private final Event transactionType;
 	private final N accountId;
@@ -32,10 +33,10 @@ public class Transaction<M, N, T> {
 	private final double interest;
 	private final double pnl;
 	private final TradingSignal side;
+	private M linkedTransactionId;
 
 	public Transaction(M transactionId, Event transactionType, N accountId, String instrument, long units,
-			TradingSignal side,
-			DateTime transactionTime, double price, double interest, double pnl) {
+			TradingSignal side, DateTime transactionTime, double price, double interest, double pnl) {
 		super();
 		this.transactionId = transactionId;
 		this.transactionType = transactionType;
@@ -87,5 +88,21 @@ public class Transaction<M, N, T> {
 
 	public double getPnl() {
 		return pnl;
+	}
+
+	public M getLinkedTransactionId() {
+		return linkedTransactionId;
+	}
+
+	public void setLinkedTransactionId(M linkedTransactionId) {
+		this.linkedTransactionId = linkedTransactionId;
+	}
+
+	@Override
+	public String toString() {
+		return "Transaction [transactionId=" + transactionId + ", transactionType=" + transactionType + ", accountId="
+				+ accountId + ", instrument=" + instrument.getInstrument() + ", units=" + units + ", transactionTime="
+				+ transactionTime + ", price=" + price + ", interest=" + interest + ", pnl=" + pnl + ", side=" + side
+				+ ", linkedTransactionId=" + linkedTransactionId + "]";
 	}
 }

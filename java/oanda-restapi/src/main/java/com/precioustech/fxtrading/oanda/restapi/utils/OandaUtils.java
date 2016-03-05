@@ -114,7 +114,7 @@ public class OandaUtils {
 	}
 
 	public static final String hashTagCcyToOandaCcy(String ccy) {
-		final int expectedLen = 7;
+		final int expectedLen = TradingUtils.CCY_PAIR_LEN;
 		if (!StringUtils.isEmpty(ccy) && ccy.startsWith(TradingConstants.HASHTAG) && ccy.length() == expectedLen) {
 
 			return isoCcyToOandaCcy(ccy.substring(1));

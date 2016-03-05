@@ -16,7 +16,8 @@
 package com.precioustech.fxtrading.oanda.restapi.account.transaction;
 
 import static com.precioustech.fxtrading.oanda.restapi.OandaConstants.ACCOUNTS_RESOURCE;
-import static com.precioustech.fxtrading.oanda.restapi.OandaJsonKeys.time;
+
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
@@ -27,14 +28,20 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
+import com.google.common.collect.Lists;
 import com.precioustech.fxtrading.TradingConstants;
 import com.precioustech.fxtrading.account.transaction.Transaction;
 import com.precioustech.fxtrading.account.transaction.TransactionDataProvider;
+import com.precioustech.fxtrading.events.Event;
 import com.precioustech.fxtrading.oanda.restapi.OandaConstants;
 import com.precioustech.fxtrading.oanda.restapi.OandaJsonKeys;
+import com.precioustech.fxtrading.oanda.restapi.events.AccountEvents;
+import com.precioustech.fxtrading.oanda.restapi.events.OrderEvents;
+import com.precioustech.fxtrading.oanda.restapi.events.TradeEvents;
 import com.precioustech.fxtrading.oanda.restapi.utils.OandaUtils;
 import com.precioustech.fxtrading.utils.TradingUtils;
 
@@ -43,6 +50,7 @@ public class OandaTransactionDataProviderService implements TransactionDataProvi
 
 	private final String url;
 	private final BasicHeader authHeader;
+	private static final String TRANSACTIONS = "transactions";
 
 	public OandaTransactionDataProviderService(final String url, final String accessToken) {
 		this.url = url;
@@ -55,8 +63,12 @@ public class OandaTransactionDataProviderService implements TransactionDataProvi
 
 	String getSingleAccountTransactionUrl(Long transactionId, Long accountId) {
 		return url + ACCOUNTS_RESOURCE + TradingConstants.FWD_SLASH + accountId + TradingConstants.FWD_SLASH
-				+ "transactions" + TradingConstants.FWD_SLASH
-				+ transactionId;
+				+ TRANSACTIONS + TradingConstants.FWD_SLASH + transactionId;
+	}
+
+	String getAccountMinTransactionUrl(Long minTransactionId, Long accountId) {
+		return url + ACCOUNTS_RESOURCE + TradingConstants.FWD_SLASH + accountId + TradingConstants.FWD_SLASH
+				+ TRANSACTIONS + "?minId=" + (minTransactionId + 1);
 	}
 
 	@Override
@@ -74,16 +86,15 @@ public class OandaTransactionDataProviderService implements TransactionDataProvi
 				JSONObject transactionJson = (JSONObject) JSONValue.parse(strResp);
 				final String instrument = transactionJson.get(OandaJsonKeys.instrument).toString();
 				final String type = transactionJson.get(OandaJsonKeys.type).toString();
-				final long tradeUnits = (Long) transactionJson.get(OandaJsonKeys.units);
-				final long timestamp = Long.parseLong(transactionJson.get(time).toString());
-				final double pnl = ((Number) transactionJson.get(OandaJsonKeys.pl)).doubleValue();
-				final double interest = ((Number) transactionJson.get(OandaJsonKeys.interest)).doubleValue();
-				final double price = ((Number) transactionJson.get(OandaJsonKeys.price)).doubleValue();
-				final String side = transactionJson.get(OandaJsonKeys.side).toString();
+				final long tradeUnits = getUnits(transactionJson);
+				final DateTime timestamp = getTransactionTime(transactionJson);
+				final double pnl = getPnl(transactionJson);
+				final double interest = getInterest(transactionJson);
+				final double price = getPrice(transactionJson);
+				final String side = getSide(transactionJson);
 				return new Transaction<Long, Long, String>(transactionId, OandaUtils.toOandaTransactionType(type),
-						accountId, instrument, tradeUnits,
-						OandaUtils.toTradingSignal(side),
-						new DateTime(TradingUtils.toMillisFromNanos(timestamp)), price, interest, pnl);
+						accountId, instrument, tradeUnits, OandaUtils.toTradingSignal(side), timestamp, price, interest,
+						pnl);
 			} else {
 				TradingUtils.printErrorMsg(httpResponse);
 			}
@@ -91,6 +102,145 @@ public class OandaTransactionDataProviderService implements TransactionDataProvi
 			LOG.error(e);
 		}
 		return null;
+	}
+
+	@Override
+	public List<Transaction<Long, Long, String>> getTransactionsGreaterThanId(Long minTransactionId, Long accountId) {
+		CloseableHttpClient httpClient = getHttpClient();
+		List<Transaction<Long, Long, String>> allTransactions = Lists.newArrayList();
+		try {
+			HttpUriRequest httpGet = new HttpGet(getAccountMinTransactionUrl(minTransactionId, accountId));
+			httpGet.setHeader(authHeader);
+			httpGet.setHeader(OandaConstants.UNIX_DATETIME_HEADER);
+
+			LOG.info(TradingUtils.executingRequestMsg(httpGet));
+			HttpResponse httpResponse = httpClient.execute(httpGet);
+			String strResp = TradingUtils.responseToString(httpResponse);
+
+			if (strResp != StringUtils.EMPTY) {
+				Object obj = JSONValue.parse(strResp);
+				JSONObject jsonResp = (JSONObject) obj;
+				JSONArray transactionsJson = (JSONArray) jsonResp.get(TRANSACTIONS);
+				for (Object o : transactionsJson) {
+					JSONObject transactionJson = (JSONObject) o;
+					final String type = transactionJson.get(OandaJsonKeys.type).toString();
+					Event transactionEvent = OandaUtils.toOandaTransactionType(type);
+					if (transactionEvent instanceof TradeEvents) {
+						allTransactions
+								.add(handleTradeTransactionEvent((TradeEvents) transactionEvent, transactionJson));
+					} else if (transactionEvent instanceof AccountEvents) {
+						allTransactions
+								.add(handleAccountTransactionEvent((AccountEvents) transactionEvent, transactionJson));
+
+					} else if (transactionEvent instanceof OrderEvents) {
+						allTransactions
+								.add(handleOrderTransactionEvent((OrderEvents) transactionEvent, transactionJson));
+					}
+				}
+			} else {
+				TradingUtils.printErrorMsg(httpResponse);
+			}
+		} catch (Exception e) {
+			LOG.error(e);
+		}
+		return allTransactions;
+	}
+
+	private String deriveInstrument(JSONObject transactionJson) {
+		String strInstr = transactionJson.get(OandaJsonKeys.instrument).toString();
+		if (StringUtils.length(strInstr) == TradingUtils.CCY_PAIR_LEN) {
+			String[] pair = TradingUtils.splitInstrumentPair(strInstr);
+			strInstr = pair[0] + TradingConstants.FWD_SLASH + pair[1];
+		}
+		return strInstr;
+	}
+
+	private Transaction<Long, Long, String> handleTradeTransactionEvent(TradeEvents tradeEvent,
+			JSONObject transactionJson) {
+		Transaction<Long, Long, String> transaction = null;
+		String strInstr = deriveInstrument(transactionJson);
+		switch (tradeEvent) {
+		case TAKE_PROFIT_FILLED:
+		case STOP_LOSS_FILLED:
+		case TRADE_CLOSE:
+		case TRAILING_STOP_FILLED:
+			transaction = new Transaction<Long, Long, String>(getTransactionId(transactionJson), tradeEvent,
+					getAccountId(transactionJson), strInstr, getUnits(transactionJson),
+					OandaUtils.toTradingSignal(getSide(transactionJson)), getTransactionTime(transactionJson),
+					getPrice(transactionJson), getInterest(transactionJson), getPnl(transactionJson));
+			transaction.setLinkedTransactionId(getLinkedTradeId(transactionJson));
+			return transaction;
+		case TRADE_UPDATE:
+			transaction = new Transaction<Long, Long, String>(getTransactionId(transactionJson), tradeEvent,
+					getAccountId(transactionJson), strInstr, getUnits(transactionJson),
+					OandaUtils.toTradingSignal(getSide(transactionJson)), getTransactionTime(transactionJson), 0.0, 0.0,
+					0.0);
+			transaction.setLinkedTransactionId(getLinkedTradeId(transactionJson));
+			return transaction;
+		default:
+			break;
+		}
+		return transaction;
+	}
+
+	private Transaction<Long, Long, String> handleAccountTransactionEvent(AccountEvents accountEvent,
+			JSONObject transactionJson) {
+		Transaction<Long, Long, String> transaction = null;
+		switch (accountEvent) {
+		case DAILY_INTEREST:
+
+			break;
+
+		default:
+			break;
+		}
+		return transaction;
+	}
+
+	private Transaction<Long, Long, String> handleOrderTransactionEvent(OrderEvents orderEvent,
+			JSONObject transactionJson) {
+		return null;
+	}
+
+	private String getSide(JSONObject transaction) {
+		return transaction.get(OandaJsonKeys.side).toString();
+	}
+
+	private Double getPrice(JSONObject transaction) {
+		return ((Number) transaction.get(OandaJsonKeys.price)).doubleValue();
+	}
+
+	private Long getUnits(JSONObject transaction) {
+		return (Long) transaction.get(OandaJsonKeys.units);
+	}
+
+	private Double getInterest(JSONObject transaction) {
+		return ((Number) transaction.get(OandaJsonKeys.interest)).doubleValue();
+	}
+
+	private Double getPnl(JSONObject transaction) {
+		return ((Number) transaction.get(OandaJsonKeys.pl)).doubleValue();
+	}
+
+	private DateTime getTransactionTime(JSONObject transaction) {
+		Long transactionTime = Long.parseLong(transaction.get(OandaJsonKeys.time).toString());
+		return new DateTime(TradingUtils.toMillisFromNanos(transactionTime));
+	}
+
+	private Long getAccountId(JSONObject transaction) {
+		return (Long) transaction.get(OandaJsonKeys.accountId);
+	}
+
+	private Long getTransactionId(JSONObject transaction) {
+		return (Long) transaction.get(OandaJsonKeys.id);
+	}
+
+	private Long getLinkedTradeId(JSONObject transaction) {
+		Long lnkedTransactionId = (Long) transaction.get(OandaJsonKeys.tradeId);
+		if (lnkedTransactionId == null) {
+			lnkedTransactionId = 0L;
+		}
+		return lnkedTransactionId;
 	}
 
 }

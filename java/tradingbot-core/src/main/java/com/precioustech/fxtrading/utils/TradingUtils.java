@@ -40,8 +40,8 @@ public class TradingUtils {
 	private TradingUtils() {/* no instances permitted, all methods static*/
 	}
 
-	private static final int CCY_PAIR_LEN = 7;
-	private static final int CCY_SEP_CHR_POS = 3;
+	public static final int CCY_PAIR_LEN = 7;
+	public static final int CCY_SEP_CHR_POS = 3;
 	private static final int THOUSAND = 1000;
 
 	/**
