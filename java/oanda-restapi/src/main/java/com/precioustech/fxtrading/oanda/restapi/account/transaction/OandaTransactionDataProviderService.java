@@ -16,6 +16,7 @@
 package com.precioustech.fxtrading.oanda.restapi.account.transaction;
 
 import static com.precioustech.fxtrading.oanda.restapi.OandaConstants.ACCOUNTS_RESOURCE;
+import static java.math.BigDecimal.ZERO;
 
 import java.util.List;
 
@@ -66,7 +67,11 @@ public class OandaTransactionDataProviderService implements TransactionDataProvi
 				+ TRANSACTIONS + TradingConstants.FWD_SLASH + transactionId;
 	}
 
-	String getAccountMinTransactionUrl(Long minTransactionId, Long accountId) {
+	String getAccountMinTransactionUrl(Long minTransactionId,
+			Long accountId) {/*
+								 * only 50 would be returned, refer
+								 * documentation
+								 */
 		return url + ACCOUNTS_RESOURCE + TradingConstants.FWD_SLASH + accountId + TradingConstants.FWD_SLASH
 				+ TRANSACTIONS + "?minId=" + (minTransactionId + 1);
 	}
@@ -84,7 +89,8 @@ public class OandaTransactionDataProviderService implements TransactionDataProvi
 			String strResp = TradingUtils.responseToString(httpResponse);
 			if (strResp != StringUtils.EMPTY) {
 				JSONObject transactionJson = (JSONObject) JSONValue.parse(strResp);
-				final String instrument = transactionJson.get(OandaJsonKeys.instrument).toString();
+				final String instrument = transactionJson.get(OandaJsonKeys.instrument)
+						.toString();/* do not use derive instrument here */
 				final String type = transactionJson.get(OandaJsonKeys.type).toString();
 				final long tradeUnits = getUnits(transactionJson);
 				final DateTime timestamp = getTransactionTime(transactionJson);
@@ -125,16 +131,17 @@ public class OandaTransactionDataProviderService implements TransactionDataProvi
 					JSONObject transactionJson = (JSONObject) o;
 					final String type = transactionJson.get(OandaJsonKeys.type).toString();
 					Event transactionEvent = OandaUtils.toOandaTransactionType(type);
+					Transaction<Long, Long, String> transaction = null;
 					if (transactionEvent instanceof TradeEvents) {
-						allTransactions
-								.add(handleTradeTransactionEvent((TradeEvents) transactionEvent, transactionJson));
+						transaction = handleTradeTransactionEvent((TradeEvents) transactionEvent, transactionJson);
 					} else if (transactionEvent instanceof AccountEvents) {
-						allTransactions
-								.add(handleAccountTransactionEvent((AccountEvents) transactionEvent, transactionJson));
-
+						transaction = handleAccountTransactionEvent((AccountEvents) transactionEvent, transactionJson);
 					} else if (transactionEvent instanceof OrderEvents) {
-						allTransactions
-								.add(handleOrderTransactionEvent((OrderEvents) transactionEvent, transactionJson));
+						transaction = handleOrderTransactionEvent((OrderEvents) transactionEvent, transactionJson);
+					}
+
+					if (transaction != null) {
+						allTransactions.add(transaction);
 					}
 				}
 			} else {
@@ -173,8 +180,8 @@ public class OandaTransactionDataProviderService implements TransactionDataProvi
 		case TRADE_UPDATE:
 			transaction = new Transaction<Long, Long, String>(getTransactionId(transactionJson), tradeEvent,
 					getAccountId(transactionJson), strInstr, getUnits(transactionJson),
-					OandaUtils.toTradingSignal(getSide(transactionJson)), getTransactionTime(transactionJson), 0.0, 0.0,
-					0.0);
+					OandaUtils.toTradingSignal(getSide(transactionJson)), getTransactionTime(transactionJson),
+					ZERO.doubleValue(), ZERO.doubleValue(), ZERO.doubleValue());
 			transaction.setLinkedTransactionId(getLinkedTradeId(transactionJson));
 			return transaction;
 		default:
@@ -186,11 +193,15 @@ public class OandaTransactionDataProviderService implements TransactionDataProvi
 	private Transaction<Long, Long, String> handleAccountTransactionEvent(AccountEvents accountEvent,
 			JSONObject transactionJson) {
 		Transaction<Long, Long, String> transaction = null;
+		String strInstr = deriveInstrument(transactionJson);
 		switch (accountEvent) {
 		case DAILY_INTEREST:
-
-			break;
-
+			transaction = new Transaction<Long, Long, String>(getTransactionId(transactionJson), accountEvent,
+					getAccountId(transactionJson), strInstr, ZERO.longValue(),
+					OandaUtils.toTradingSignal(getSide(transactionJson)), getTransactionTime(transactionJson),
+					ZERO.doubleValue(), getInterest(transactionJson), ZERO.doubleValue());
+			transaction.setLinkedTransactionId(getLinkedTradeId(transactionJson));
+			return transaction;
 		default:
 			break;
 		}
@@ -199,6 +210,28 @@ public class OandaTransactionDataProviderService implements TransactionDataProvi
 
 	private Transaction<Long, Long, String> handleOrderTransactionEvent(OrderEvents orderEvent,
 			JSONObject transactionJson) {
+		Transaction<Long, Long, String> transaction = null;
+		String strInstr = deriveInstrument(transactionJson);
+		switch (orderEvent) {
+		case LIMIT_ORDER_CREATE:
+			transaction = new Transaction<Long, Long, String>(getTransactionId(transactionJson), orderEvent,
+					getAccountId(transactionJson), strInstr, getUnits(transactionJson),
+					OandaUtils.toTradingSignal(getSide(transactionJson)), getTransactionTime(transactionJson),
+					getPrice(transactionJson), ZERO.doubleValue(), ZERO.doubleValue());
+			transaction.setLinkedTransactionId(getLinkedTradeId(transactionJson));
+			break;
+		case MARKET_ORDER_CREATE:
+		case ORDER_FILLED:
+			transaction = new Transaction<Long, Long, String>(getTransactionId(transactionJson), orderEvent,
+					getAccountId(transactionJson), strInstr, getUnits(transactionJson),
+					OandaUtils.toTradingSignal(getSide(transactionJson)), getTransactionTime(transactionJson),
+					getPrice(transactionJson), getInterest(transactionJson), getPnl(transactionJson));
+			transaction.setLinkedTransactionId(getLinkedTradeId(transactionJson));
+		case ORDER_CANCEL:
+		case ORDER_UPDATE:
+		default:
+			break;
+		}
 		return null;
 	}
 
@@ -238,7 +271,7 @@ public class OandaTransactionDataProviderService implements TransactionDataProvi
 	private Long getLinkedTradeId(JSONObject transaction) {
 		Long lnkedTransactionId = (Long) transaction.get(OandaJsonKeys.tradeId);
 		if (lnkedTransactionId == null) {
-			lnkedTransactionId = 0L;
+			lnkedTransactionId = ZERO.longValue();
 		}
 		return lnkedTransactionId;
 	}
