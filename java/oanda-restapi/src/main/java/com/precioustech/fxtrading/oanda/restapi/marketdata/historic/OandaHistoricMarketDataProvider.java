@@ -224,7 +224,9 @@ public class OandaHistoricMarketDataProvider implements HistoricMarketDataProvid
 		} catch (OandaLimitExceededException leex) {
 			throw leex;
 		} catch (Exception e) {
-			LOG.error(e);
+			LOG.error(String.format(
+					"exception encountered whilst retrieving candlesticks for instrument %s with granularity %s",
+					instrument.getInstrument(), granularity.getLabel()), e);
 		} finally {
 			TradingUtils.closeSilently(httpClient);
 		}

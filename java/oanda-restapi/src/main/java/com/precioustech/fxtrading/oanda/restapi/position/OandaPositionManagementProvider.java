@@ -91,7 +91,7 @@ public class OandaPositionManagementProvider implements PositionManagementProvid
 				}
 			}
 		} catch (Exception ex) {
-			LOG.error(ex);
+			LOG.error("error encountered whilst fetching positions for account:" + accountId, ex);
 		} finally {
 			TradingUtils.closeSilently(httpClient);
 		}
@@ -131,7 +131,8 @@ public class OandaPositionManagementProvider implements PositionManagementProvid
 								.getInstrument(), accountId, httpCode));
 			}
 		} catch (Exception ex) {
-			LOG.error(ex);
+			LOG.error(String.format("error encountered whilst closing position for instrument %s and account %d",
+					instrument.getInstrument(), accountId), ex);
 		} finally {
 			TradingUtils.closeSilently(httpClient);
 		}
@@ -147,7 +148,8 @@ public class OandaPositionManagementProvider implements PositionManagementProvid
 				return parsePositionInfo((JSONObject) JSONValue.parse(strResp));
 			}
 		} catch (Exception ex) {
-			LOG.error(ex);
+			LOG.error(String.format("error encountered whilst fetching position for instrument %s and account %d",
+					instrument.getInstrument(), accountId), ex);
 		} finally {
 			TradingUtils.closeSilently(httpClient);
 		}

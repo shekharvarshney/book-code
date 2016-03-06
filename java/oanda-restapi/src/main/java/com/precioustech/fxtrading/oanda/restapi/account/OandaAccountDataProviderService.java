@@ -106,7 +106,7 @@ public class OandaAccountDataProviderService implements AccountDataProvider<Long
 				TradingUtils.printErrorMsg(httpResponse);
 			}
 		} catch (Exception e) {
-			LOG.error(e);
+			LOG.error("Exception encountered whilst getting info for account:" + accountId, e);
 		}
 		return null;
 	}
@@ -150,7 +150,7 @@ public class OandaAccountDataProviderService implements AccountDataProvider<Long
 			}
 
 		} catch (Exception e) {
-			LOG.error(e);
+			LOG.error("Exception encountered while retrieving all accounts data", e);
 		} finally {
 			TradingUtils.closeSilently(httpClient);
 		}

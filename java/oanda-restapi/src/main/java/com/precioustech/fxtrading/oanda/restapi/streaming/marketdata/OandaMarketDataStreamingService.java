@@ -121,7 +121,7 @@ public class OandaMarketDataStreamingService extends OandaStreamingService imple
 						// stream.close();
 					}
 				} catch (Exception e) {
-					LOG.error(e);
+					LOG.error("error encountered inside market data streaming thread", e);
 				} finally {
 					serviceUp = false;
 					TradingUtils.closeSilently(httpClient);

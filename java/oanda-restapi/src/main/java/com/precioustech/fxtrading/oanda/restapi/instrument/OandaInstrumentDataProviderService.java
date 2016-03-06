@@ -110,7 +110,7 @@ public class OandaInstrumentDataProviderService implements InstrumentDataProvide
 				TradingUtils.printErrorMsg(resp);
 			}
 		} catch (Exception e) {
-			LOG.error(e);
+			LOG.error("exception encountered whilst retrieving all instruments info", e);
 		} finally {
 			TradingUtils.closeSilently(httpClient);
 		}

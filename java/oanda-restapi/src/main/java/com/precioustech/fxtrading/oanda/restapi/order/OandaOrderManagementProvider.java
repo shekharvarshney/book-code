@@ -198,7 +198,8 @@ public class OandaOrderManagementProvider implements OrderManagementProvider<Lon
 				TradingUtils.printErrorMsg(resp);
 			}
 		} catch (Exception e) {
-			LOG.error(e);
+			LOG.error(String.format("error encountered whilst fetching pending order for account %d and order id %d",
+					accountId, orderId), e);
 		} finally {
 			TradingUtils.closeSilently(httpClient);
 		}
@@ -262,7 +263,8 @@ public class OandaOrderManagementProvider implements OrderManagementProvider<Lon
 				TradingUtils.printErrorMsg(resp);
 			}
 		} catch (Exception e) {
-			LOG.error(e);
+			LOG.error(String.format("error encountered whilst fetching pending orders for account %d and instrument %s",
+					accountId, instrument.getInstrument()), e);
 		} finally {
 			TradingUtils.closeSilently(httpClient);
 		}
@@ -292,7 +294,7 @@ public class OandaOrderManagementProvider implements OrderManagementProvider<Lon
 			}
 			LOG.warn(String.format("order %s could not be modified.", order.toString()));
 		} catch (Exception e) {
-			LOG.error(e);
+			LOG.error(String.format("error encountered whilst modifying order %d for account %d", order, accountId), e);
 		} finally {
 			TradingUtils.closeSilently(httpClient);
 		}

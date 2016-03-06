@@ -118,7 +118,7 @@ public class OrderExecutionService<M, N, K> implements Runnable {
 					break;
 				}
 			} catch (Exception e) {
-				LOG.error(e);
+				LOG.error("error encountered inside order execution service", e);
 			}
 		}
 

@@ -120,7 +120,7 @@ public class OandaTradeManagementProvider implements TradeManagementProvider<Lon
 				TradingUtils.printErrorMsg(resp);
 			}
 		} catch (Exception ex) {
-			LOG.error(ex);
+			LOG.error("error encountered whilst fetching trades for account:" + accountId, ex);
 		} finally {
 			TradingUtils.closeSilently(httpClient);
 		}
@@ -149,7 +149,8 @@ public class OandaTradeManagementProvider implements TradeManagementProvider<Lon
 				TradingUtils.printErrorMsg(resp);
 			}
 		} catch (Exception ex) {
-			LOG.error(ex);
+			LOG.error(String.format("error encountered whilst fetching trade %d for account %d", tradeId, accountId),
+					ex);
 		} finally {
 			TradingUtils.closeSilently(httpClient);
 		}
@@ -187,7 +188,10 @@ public class OandaTradeManagementProvider implements TradeManagementProvider<Lon
 						tradeId, stopLoss, takeProfit, resp.getStatusLine().getStatusCode()));
 			}
 		} catch (Exception e) {
-			LOG.error(e);
+			LOG.error(
+					String.format("error while modifying trade %d to stop loss %3.5f, take profit %3.5f for account %d",
+							tradeId, stopLoss, takeProfit, accountId),
+					e);
 		} finally {
 			TradingUtils.closeSilently(httpClient);
 		}

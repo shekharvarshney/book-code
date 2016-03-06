@@ -120,7 +120,7 @@ public class OandaEventsStreamingService extends OandaStreamingService implement
 					}
 
 				} catch (Exception e) {
-					LOG.error(e);
+					LOG.error("error encountered inside event streaming thread", e);
 				} finally {
 					serviceUp = false;
 					TradingUtils.closeSilently(httpClient);
