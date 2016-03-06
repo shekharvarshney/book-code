@@ -1,0 +1,127 @@
+{
+	"transactions" : [
+	{
+		"id" : 176403885,
+		"accountId" : 123456,
+		"time" : "1444721003000000",
+		"type" : "TRADE_CLOSE",
+		"instrument" : "EUR_USD",
+		"units" : 2,
+		"side" : "sell",
+		"price" : 1.25918,
+		"pl" : 0.0119,
+		"interest" : 0,
+		"accountBalance" : 100000.0119,
+		"tradeId" : 176403879
+	},
+	{
+		"id" : 1782504294,
+		"accountId" : 123456,
+		"time" : "1444745003000000",
+		"type" : "TRADE_UPDATE",
+		"instrument" : "USD_SGD",
+		"units" : 3000,
+		"stopLossPrice" : 1.38957,
+		"tradeId" : 1782311741
+	},
+	{
+		"id" : 1782410065,
+		"accountId" : 123456,
+		"time" : "1426254359000000",
+		"type" : "TAKE_PROFIT_FILLED",
+		"tradeId" : 1782379135,
+		"instrument" : "USD_CHF",
+		"units" : 3000,
+		"side" : "sell",
+		"price" : 1.00877,
+		"pl" : 3.48,
+		"interest" : 0.0002,
+		"accountBalance" : 5912.5829
+	},
+	{
+		"id" : 1782521006,
+		"accountId" : 123456,
+		"time" : "1426261218000000",
+		"type" : "STOP_LOSS_FILLED",
+		"tradeId" : 1782311741,
+		"instrument" : "USD_SGD",
+		"units" : 3000,
+		"side" : "sell",
+		"price" : 1.39101,
+		"pl" : 3.3039,
+		"interest" : -0.0123,
+		"accountBalance" : 5915.8745
+	},
+	{
+	  "id" : 175739353,
+	  "accountId" : 123456,
+	  "time" : "1444621003000000",
+	  "type" : "TRAILING_STOP_FILLED",
+	  "units" : 10,
+	  "tradeId" : 175739352,
+	  "instrument" : "EUR_USD",
+	  "side" : "sell",
+	  "price" : 1.38137,
+	  "pl" : -0.0009,
+	  "interest" : 0,
+	  "accountBalance" : 99999.9992
+	},
+	{
+		"id" : 175685908,
+		"accountId" : 123456,
+		"time" : "1444721006000000",
+		"type" : "ORDER_FILLED",
+		"instrument" : "EUR_USD",
+		"units" : 2,
+		"side" : "buy",
+		"price" : 1.3821,
+		"pl" : 0,
+		"interest" : 0,
+		"accountBalance" : 100000,
+		"orderId" : 175685907,
+		"tradeOpened" : {
+		      "id" : 175685908,
+		      "units" : 2
+		}
+	},
+	{
+		"id" : 176403880,
+		"accountId" : 123456,
+		"time" : "1444831003000000",
+		"type" : "LIMIT_ORDER_CREATE",
+		"instrument" : "EUR_USD",
+		"units" : 2,
+		"side" : "buy",
+		"price" : 1,
+		"expiry" : 1398902400,
+		"takeProfitPrice" : 1.0034,
+		"reason" : "CLIENT_REQUEST"
+	},
+	{
+		"id" : 1782631056,
+		"accountId" : 123456,
+		"time" : "1426277134000000",
+		"type" : "MARKET_ORDER_CREATE",
+		"instrument" : "CHF_ZAR",
+		"units" : 3000,
+		"side" : "sell",
+		"price" : 12.40158,
+		"pl" : 0,
+		"interest" : 0,
+		"accountBalance" : 5915.8745,
+		"tradeOpened" : {
+			"id" : 1782631056,
+			"units" : 3000
+		}
+	},
+	{
+		"id" : 1782898734,
+		"accountId" : 123456,
+		"time" : "1426276800000000",
+		"type" : "DAILY_INTEREST",
+		"instrument" : "AUD_USD",
+		"interest" : 0.0979,
+		"accountBalance" : 5915.9724
+	}	
+  ]
+}
