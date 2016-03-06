@@ -155,10 +155,11 @@ public class OandaTransactionDataProviderService implements TransactionDataProvi
 
 	private String deriveInstrument(JSONObject transactionJson) {
 		String strInstr = transactionJson.get(OandaJsonKeys.instrument).toString();
-		if (StringUtils.length(strInstr) == TradingUtils.CCY_PAIR_LEN) {
-			String[] pair = TradingUtils.splitInstrumentPair(strInstr);
-			strInstr = pair[0] + TradingConstants.FWD_SLASH + pair[1];
-		}
+		// Should be transformed by the consumer
+		// if (StringUtils.length(strInstr) == TradingUtils.CCY_PAIR_LEN) {
+		// String[] pair = TradingUtils.splitInstrumentPair(strInstr);
+		// strInstr = pair[0] + TradingConstants.FWD_SLASH + pair[1];
+		// }
 		return strInstr;
 	}
 
