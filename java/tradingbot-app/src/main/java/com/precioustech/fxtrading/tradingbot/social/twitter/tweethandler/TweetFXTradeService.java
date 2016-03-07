@@ -51,7 +51,7 @@ public class TweetFXTradeService<K, T extends EventPayLoad<K>> {
 					twitter.timelineOperations().updateStatus(tweet);
 				}
 			} catch (Exception ex) {
-				LOG.error("error encountered whilst hadling payload->" + payLoad, ex);
+				LOG.error("error encountered whilst handling payload->" + payLoad.getPayLoad(), ex);
 			}
 		}
 	}
