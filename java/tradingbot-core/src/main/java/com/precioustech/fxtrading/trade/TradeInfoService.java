@@ -30,7 +30,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.precioustech.fxtrading.account.Account;
-import com.precioustech.fxtrading.account.AccountInfoService;
+import com.precioustech.fxtrading.account.AccountDataProvider;
 import com.precioustech.fxtrading.instrument.TradeableInstrument;
 import com.precioustech.fxtrading.utils.TradingUtils;
 
@@ -71,16 +71,16 @@ public class TradeInfoService<M, N, K> {
 
 	private static final Logger LOG = Logger.getLogger(TradeInfoService.class);
 	private final TradeManagementProvider<M, N, K> tradeManagementProvider;
-	private final AccountInfoService<K, N> accountInfoService;
+	private final AccountDataProvider<K> accountDataProvider;
 	private final ConcurrentMap<K, Map<TradeableInstrument<N>, Collection<Trade<M, N, K>>>> tradesCache = Maps
 			.newConcurrentMap();
 
 	private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
 	public TradeInfoService(TradeManagementProvider<M, N, K> tradeManagementProvider,
-			AccountInfoService<K, N> accountInfoService) {
+			AccountDataProvider<K> accountDataProvider) {
 		this.tradeManagementProvider = tradeManagementProvider;
-		this.accountInfoService = accountInfoService;
+		this.accountDataProvider = accountDataProvider;
 	}
 
 	/**
@@ -123,7 +123,7 @@ public class TradeInfoService<M, N, K> {
 		lock.writeLock().lock();
 		try {
 			tradesCache.clear();
-			Collection<Account<K>> accounts = this.accountInfoService.getAllAccounts();
+			Collection<Account<K>> accounts = this.accountDataProvider.getLatestAccountInfo();
 			for (Account<K> account : accounts) {
 				Map<TradeableInstrument<N>, Collection<Trade<M, N, K>>> tradeMap = getTradesPerInstrumentForAccount(account
 						.getAccountId());

@@ -84,7 +84,7 @@
 	</bean>
 	<bean id="tradeInfoService" class="com.precioustech.fxtrading.trade.TradeInfoService">
 		<constructor-arg index="0" ref="tradeManagementProvider"/>
-		<constructor-arg index="1" ref="accountInfoService"/>
+		<constructor-arg index="1" ref="accountDataProvider"/>
 	</bean>
 	<bean id="preOrderValidationService" class="com.precioustech.fxtrading.order.PreOrderValidationService">
 		<constructor-arg index="0" ref="tradeInfoService"/>
