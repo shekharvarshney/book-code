@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.samples</groupId>
   <artifactId>oanda-historic-transactions</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0</version>
   
   <properties>
 
@@ -38,6 +38,11 @@
 			<artifactId>spring-tx</artifactId>
 			<version>${spring-framework.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>${spring-framework.version}</version>
+		</dependency>
 
 		<!-- Logging with SLF4J & LogBack -->
 		<dependency>
@@ -46,6 +51,8 @@
 			<version>${slf4j.version}</version>
 			<scope>compile</scope>
 		</dependency>
+		
+		<!-- tradingbot -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
@@ -64,6 +71,26 @@
 			<artifactId>hibernate-entitymanager</artifactId>
 			<version>${hibernate.version}</version>
 		</dependency>
+		<dependency>
+			<artifactId>hibernate-ehcache</artifactId>
+			<groupId>org.hibernate</groupId>
+			<version>${hibernate.version}</version>
+		</dependency>
+	
+		<!-- mysql -->	
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.6</version>
+		</dependency>
+		
+		
+		<!-- To map JodaTime with database type -->
+        <dependency>
+            <groupId>org.jadira.usertype</groupId>
+            <artifactId>usertype.core</artifactId>
+            <version>3.0.0.CR1</version>
+        </dependency>
 
 		
 		<!-- Test Artifacts -->

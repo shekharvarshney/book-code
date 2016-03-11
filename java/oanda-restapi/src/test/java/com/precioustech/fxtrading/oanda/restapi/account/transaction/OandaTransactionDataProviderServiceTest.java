@@ -57,7 +57,7 @@ public class OandaTransactionDataProviderServiceTest {
 		assertEquals(TradingSignal.SHORT, transaction.getSide());
 		assertEquals(1.10642, transaction.getPrice(), OandaTestConstants.precision);
 		assertEquals(0.2538, transaction.getPnl(), precision);
-		assertEquals(200, transaction.getUnits());
+		assertEquals(new Long(200), transaction.getUnits());
 		assertEquals(TradeEvents.TRADE_CLOSE, transaction.getTransactionType());
 		assertEquals(accountId, transaction.getAccountId());
 		assertEquals(0.0, transaction.getInterest(), OandaTestConstants.precision);
@@ -89,7 +89,7 @@ public class OandaTransactionDataProviderServiceTest {
 		Transaction<Long, Long, String> transaction = allTransactions.get(0);
 		assertEquals(TradeEvents.TRADE_CLOSE, transaction.getTransactionType());
 		assertEquals("EUR_USD", transaction.getInstrument().getInstrument());
-		assertEquals(2l, transaction.getUnits());
+		assertEquals(new Long(2), transaction.getUnits());
 		assertEquals(TradingSignal.SHORT, transaction.getSide());
 		assertEquals(1.25918, transaction.getPrice(), precision);
 		assertEquals(0.0119, transaction.getPnl(), precision);
@@ -99,14 +99,14 @@ public class OandaTransactionDataProviderServiceTest {
 		transaction = allTransactions.get(1);
 		assertEquals(TradeEvents.TRADE_UPDATE, transaction.getTransactionType());
 		assertEquals("USD_SGD", transaction.getInstrument().getInstrument());
-		assertEquals(3000l, transaction.getUnits());
+		assertEquals(new Long(3000), transaction.getUnits());
 		assertEquals(new Long(1782311741), transaction.getLinkedTransactionId());
 
 		// TAKE_PROFIT_FILLED
 		transaction = allTransactions.get(2);
 		assertEquals(TradeEvents.TAKE_PROFIT_FILLED, transaction.getTransactionType());
 		assertEquals("USD_CHF", transaction.getInstrument().getInstrument());
-		assertEquals(3000l, transaction.getUnits());
+		assertEquals(new Long(3000), transaction.getUnits());
 		assertEquals(new Long(1782379135), transaction.getLinkedTransactionId());
 		assertEquals(1.00877, transaction.getPrice(), precision);
 		assertEquals(3.48, transaction.getPnl(), precision);
@@ -117,7 +117,7 @@ public class OandaTransactionDataProviderServiceTest {
 		transaction = allTransactions.get(3);
 		assertEquals(TradeEvents.STOP_LOSS_FILLED, transaction.getTransactionType());
 		assertEquals("USD_SGD", transaction.getInstrument().getInstrument());
-		assertEquals(3000l, transaction.getUnits());
+		assertEquals(new Long(3000), transaction.getUnits());
 		assertEquals(new Long(1782311741), transaction.getLinkedTransactionId());
 		assertEquals(1.39101, transaction.getPrice(), precision);
 		assertEquals(3.3039, transaction.getPnl(), precision);
@@ -128,7 +128,7 @@ public class OandaTransactionDataProviderServiceTest {
 		transaction = allTransactions.get(4);
 		assertEquals(TradeEvents.TRAILING_STOP_FILLED, transaction.getTransactionType());
 		assertEquals("EUR_USD", transaction.getInstrument().getInstrument());
-		assertEquals(10l, transaction.getUnits());
+		assertEquals(new Long(10), transaction.getUnits());
 		assertEquals(new Long(175739352), transaction.getLinkedTransactionId());
 		assertEquals(1.38137, transaction.getPrice(), precision);
 		assertEquals(-0.0009, transaction.getPnl(), precision);
@@ -139,7 +139,7 @@ public class OandaTransactionDataProviderServiceTest {
 		transaction = allTransactions.get(6);
 		assertEquals(OrderEvents.LIMIT_ORDER_CREATE, transaction.getTransactionType());
 		assertEquals("EUR_USD", transaction.getInstrument().getInstrument());
-		assertEquals(2l, transaction.getUnits());
+		assertEquals(new Long(2), transaction.getUnits());
 		assertEquals(BigInteger.ZERO.longValue(), transaction.getLinkedTransactionId().longValue());
 		assertEquals(1, transaction.getPrice(), precision);
 		assertEquals(TradingSignal.LONG, transaction.getSide());
@@ -148,7 +148,7 @@ public class OandaTransactionDataProviderServiceTest {
 		transaction = allTransactions.get(8);
 		assertEquals(AccountEvents.DAILY_INTEREST, transaction.getTransactionType());
 		assertEquals("AUD_USD", transaction.getInstrument().getInstrument());
-		assertEquals(0l, transaction.getUnits());
+		assertNull(transaction.getUnits());
 		assertNull(transaction.getSide());
 
 	}

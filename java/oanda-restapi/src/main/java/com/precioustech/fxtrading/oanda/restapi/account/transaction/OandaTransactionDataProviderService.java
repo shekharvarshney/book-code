@@ -74,7 +74,7 @@ public class OandaTransactionDataProviderService implements TransactionDataProvi
 								 * documentation
 								 */
 		return url + ACCOUNTS_RESOURCE + TradingConstants.FWD_SLASH + accountId + TradingConstants.FWD_SLASH
-				+ TRANSACTIONS + "?minId=" + (minTransactionId + 1);
+				+ TRANSACTIONS + "?minId=" + (minTransactionId + 1) + "&count=500";
 	}
 
 	@Override
@@ -95,11 +95,11 @@ public class OandaTransactionDataProviderService implements TransactionDataProvi
 				final String instrument = transactionJson.get(OandaJsonKeys.instrument)
 						.toString();/* do not use derive instrument here */
 				final String type = transactionJson.get(OandaJsonKeys.type).toString();
-				final long tradeUnits = getUnits(transactionJson);
+				final Long tradeUnits = getUnits(transactionJson);
 				final DateTime timestamp = getTransactionTime(transactionJson);
-				final double pnl = getPnl(transactionJson);
-				final double interest = getInterest(transactionJson);
-				final double price = getPrice(transactionJson);
+				final Double pnl = getPnl(transactionJson);
+				final Double interest = getInterest(transactionJson);
+				final Double price = getPrice(transactionJson);
 				final String side = getSide(transactionJson);
 				return new Transaction<Long, Long, String>(transactionId, OandaUtils.toOandaTransactionType(type),
 						accountId, instrument, tradeUnits, OandaUtils.toTradingSignal(side), timestamp, price, interest,
@@ -166,11 +166,6 @@ public class OandaTransactionDataProviderService implements TransactionDataProvi
 
 	private String deriveInstrument(JSONObject transactionJson) {
 		String strInstr = transactionJson.get(OandaJsonKeys.instrument).toString();
-		// Should be transformed by the consumer
-		// if (StringUtils.length(strInstr) == TradingUtils.CCY_PAIR_LEN) {
-		// String[] pair = TradingUtils.splitInstrumentPair(strInstr);
-		// strInstr = pair[0] + TradingConstants.FWD_SLASH + pair[1];
-		// }
 		return strInstr;
 	}
 
@@ -192,7 +187,7 @@ public class OandaTransactionDataProviderService implements TransactionDataProvi
 		case TRADE_UPDATE:
 			transaction = new Transaction<Long, Long, String>(getTransactionId(transactionJson), tradeEvent,
 					getAccountId(transactionJson), strInstr, getUnits(transactionJson), null,
-					getTransactionTime(transactionJson), ZERO.doubleValue(), ZERO.doubleValue(), ZERO.doubleValue());
+					getTransactionTime(transactionJson), null, null, null);
 			transaction.setLinkedTransactionId(getLinkedTradeId(transactionJson));
 			return transaction;
 		default:
@@ -208,9 +203,8 @@ public class OandaTransactionDataProviderService implements TransactionDataProvi
 		switch (accountEvent) {
 		case DAILY_INTEREST:
 			transaction = new Transaction<Long, Long, String>(getTransactionId(transactionJson), accountEvent,
-					getAccountId(transactionJson), strInstr, ZERO.longValue(), null,
-					getTransactionTime(transactionJson), ZERO.doubleValue(), getInterest(transactionJson),
-					ZERO.doubleValue());
+					getAccountId(transactionJson), strInstr, null, null, getTransactionTime(transactionJson), null,
+					getInterest(transactionJson), null);
 			transaction.setLinkedTransactionId(getLinkedTradeId(transactionJson));
 			return transaction;
 		default:
@@ -222,17 +216,19 @@ public class OandaTransactionDataProviderService implements TransactionDataProvi
 	private Transaction<Long, Long, String> handleOrderTransactionEvent(OrderEvents orderEvent,
 			JSONObject transactionJson) {
 		Transaction<Long, Long, String> transaction = null;
-		String strInstr = deriveInstrument(transactionJson);
+		String strInstr = null;
 		switch (orderEvent) {
 		case LIMIT_ORDER_CREATE:
+			strInstr = deriveInstrument(transactionJson);
 			transaction = new Transaction<Long, Long, String>(getTransactionId(transactionJson), orderEvent,
 					getAccountId(transactionJson), strInstr, getUnits(transactionJson),
 					OandaUtils.toTradingSignal(getSide(transactionJson)), getTransactionTime(transactionJson),
-					getPrice(transactionJson), ZERO.doubleValue(), ZERO.doubleValue());
+					getPrice(transactionJson), null, null);
 			transaction.setLinkedTransactionId(getLinkedTradeId(transactionJson));
 			break;
 		case MARKET_ORDER_CREATE:
 		case ORDER_FILLED:
+			strInstr = deriveInstrument(transactionJson);
 			transaction = new Transaction<Long, Long, String>(getTransactionId(transactionJson), orderEvent,
 					getAccountId(transactionJson), strInstr, getUnits(transactionJson),
 					OandaUtils.toTradingSignal(getSide(transactionJson)), getTransactionTime(transactionJson),

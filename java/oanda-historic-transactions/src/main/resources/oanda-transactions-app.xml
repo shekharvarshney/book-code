@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/util
+    http://www.springframework.org/schema/util/spring-util.xsd
+    http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx.xsd">
+	<context:annotation-config/>
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	<context:property-placeholder location="classpath:oanda-transactions.properties" ignore-unresolvable="true"/>
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${jdbc.driverClassName}" />
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}"/>      
+    </bean>
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean" >
+        <property name="dataSource" ref="dataSource"/>
+        <property name="packagesToScan">
+            <list>
+                <value>com.precioustech.fxtrading.oanda.restapi.account.transaction.entities</value>
+            </list>
+        </property>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+                <prop key="hibernate.show_sql">${hibernate.show_sql:false}</prop>
+                <prop key="hibernate.format_sql">${hibernate.format_sql:false}</prop>
+                <prop key="hibernate.cache.region.factory_class">${hibernate.cache.region.factory_class}</prop>
+            </props>
+        </property>       
+    </bean>
+	<bean id="transactionManager"  class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+    <bean id="accountDataProvider" 
+    class="com.precioustech.fxtrading.oanda.restapi.account.OandaAccountDataProviderService">
+		<constructor-arg index="0" value="${oanda.url}"/>
+		<constructor-arg index="1" value="${oanda.userName}"/>
+		<constructor-arg index="2" value="${oanda.accessToken}"/>
+	</bean>
+	<bean id="transactionDataProvider" 
+		class="com.precioustech.fxtrading.oanda.restapi.account.transaction.OandaTransactionDataProviderService">
+		<constructor-arg index="0" value="${oanda.url}"/>
+		<constructor-arg index="1" value="${oanda.accessToken}"/>
+	</bean>
+	<bean id="tradeManagementProvider" class="com.precioustech.fxtrading.oanda.restapi.trade.OandaTradeManagementProvider">
+		<constructor-arg index="0" value="${oanda.url}"/>
+		<constructor-arg index="1" value="${oanda.accessToken}"/>
+	</bean>
+	<bean id="tradeInfoService" class="com.precioustech.fxtrading.trade.TradeInfoService">
+		<constructor-arg index="0" ref="tradeManagementProvider"/>
+		<constructor-arg index="1" ref="accountDataProvider"/>
+	</bean>
+	
+		
+	<bean id="dailyInterestTransactionTypeHandler" 
+		class="com.precioustech.fxtrading.oanda.restapi.account.transaction.DailyInterestOandaTransactionTypeHandler"/>
+	<util:map id="transactionTypeHandlerMap">
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.AccountEvents).DAILY_INTEREST}" 
+		value-ref="dailyInterestTransactionTypeHandler"/>
+	</util:map>
+	
+    <bean id="persistenceExceptionTranslationPostProcessor"
+        class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
+    <bean id="accountDao" class="com.precioustech.fxtrading.oanda.restapi.account.transaction.dao.OandaAccountDao"/>
+    <bean id="transactionDao" class="com.precioustech.fxtrading.oanda.restapi.account.transaction.dao.OandaTransactionDao"/>
+    <bean id="transactionService" 
+    class="com.precioustech.fxtrading.oanda.restapi.account.transaction.OandaTransactionService"/>
+    <bean id="defaultTransactionTypeHandler"  
+		class="com.precioustech.fxtrading.oanda.restapi.account.transaction.DefaultOandaTransactionTypeHandler"/>
+</beans>

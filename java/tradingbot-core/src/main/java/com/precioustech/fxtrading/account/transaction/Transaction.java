@@ -27,16 +27,16 @@ public class Transaction<M, N, T> {
 	private final Event transactionType;
 	private final N accountId;
 	private final TradeableInstrument<T> instrument;
-	private final long units;
+	private final Long units;
 	private final DateTime transactionTime;
-	private final double price;
-	private final double interest;
-	private final double pnl;
+	private final Double price;
+	private final Double interest;
+	private final Double pnl;
 	private final TradingSignal side;
 	private M linkedTransactionId;
 
-	public Transaction(M transactionId, Event transactionType, N accountId, String instrument, long units,
-			TradingSignal side, DateTime transactionTime, double price, double interest, double pnl) {
+	public Transaction(M transactionId, Event transactionType, N accountId, String instrument, Long units,
+			TradingSignal side, DateTime transactionTime, Double price, Double interest, Double pnl) {
 		super();
 		this.transactionId = transactionId;
 		this.transactionType = transactionType;
@@ -70,7 +70,7 @@ public class Transaction<M, N, T> {
 		return instrument;
 	}
 
-	public long getUnits() {
+	public Long getUnits() {
 		return units;
 	}
 
@@ -78,15 +78,15 @@ public class Transaction<M, N, T> {
 		return transactionTime;
 	}
 
-	public double getPrice() {
+	public Double getPrice() {
 		return price;
 	}
 
-	public double getInterest() {
+	public Double getInterest() {
 		return interest;
 	}
 
-	public double getPnl() {
+	public Double getPnl() {
 		return pnl;
 	}
 
