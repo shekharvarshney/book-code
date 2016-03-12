@@ -5,15 +5,10 @@ import org.apache.log4j.Logger;
 import com.precioustech.fxtrading.BaseTradingConfig;
 import com.precioustech.fxtrading.TradingSignal;
 import com.precioustech.fxtrading.account.AccountDataProvider;
-import com.precioustech.fxtrading.account.AccountInfoService;
-import com.precioustech.fxtrading.helper.ProviderHelper;
 import com.precioustech.fxtrading.instrument.TradeableInstrument;
-import com.precioustech.fxtrading.marketdata.CurrentPriceInfoProvider;
 import com.precioustech.fxtrading.marketdata.historic.HistoricMarketDataProvider;
 import com.precioustech.fxtrading.marketdata.historic.MovingAverageCalculationService;
 import com.precioustech.fxtrading.oanda.restapi.account.OandaAccountDataProviderService;
-import com.precioustech.fxtrading.oanda.restapi.helper.OandaProviderHelper;
-import com.precioustech.fxtrading.oanda.restapi.marketdata.OandaCurrentPriceInfoProvider;
 import com.precioustech.fxtrading.oanda.restapi.marketdata.historic.OandaHistoricMarketDataProvider;
 import com.precioustech.fxtrading.oanda.restapi.order.OandaOrderManagementProvider;
 import com.precioustech.fxtrading.oanda.restapi.trade.OandaTradeManagementProvider;
@@ -44,19 +39,17 @@ public class PreValidationServiceDemo {
 
 		TradeManagementProvider<Long, String, Long> tradeManagementProvider = new OandaTradeManagementProvider(url,
 				accessToken);
-		CurrentPriceInfoProvider<String> currentPriceInfoProvider = new OandaCurrentPriceInfoProvider(url, accessToken);
+
 		BaseTradingConfig tradingConfig = new BaseTradingConfig();
 		tradingConfig.setMinReserveRatio(0.05);
 		tradingConfig.setMinAmountRequired(100.00);
 		tradingConfig.setMaxAllowedQuantity(10);
 		tradingConfig.setMaxAllowedNetContracts(3);
-		ProviderHelper<String> providerHelper = new OandaProviderHelper();
 
-		AccountInfoService<Long, String> accountInfoService = new AccountInfoService<Long, String>(accountDataProvider,
-				currentPriceInfoProvider, tradingConfig, providerHelper);
+
 
 		TradeInfoService<Long, String, Long> tradeInfoService = new TradeInfoService<Long, String, Long>(
-				tradeManagementProvider, accountInfoService);
+				tradeManagementProvider, accountDataProvider);
 
 		tradeInfoService.init();
 

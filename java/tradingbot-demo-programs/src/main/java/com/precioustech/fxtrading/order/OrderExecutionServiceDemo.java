@@ -65,7 +65,7 @@ public class OrderExecutionServiceDemo {
 				orderManagementProvider);
 
 		TradeInfoService<Long, String, Long> tradeInfoService = new TradeInfoService<Long, String, Long>(
-				tradeManagementProvider, accountInfoService);
+				tradeManagementProvider, accountDataProvider);
 
 		HistoricMarketDataProvider<String> historicMarketDataProvider = new OandaHistoricMarketDataProvider(url,
 				accessToken);
