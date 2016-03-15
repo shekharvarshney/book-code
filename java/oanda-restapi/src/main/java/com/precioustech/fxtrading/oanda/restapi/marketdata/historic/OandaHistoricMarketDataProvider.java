@@ -113,12 +113,15 @@ public class OandaHistoricMarketDataProvider implements HistoricMarketDataProvid
 
 				for (long batch = 1; batch <= batchesReqd; batch++) {
 					List<CandleStick<String>> batchCandles = null;
-					if (batch == batchesReqd) {
+					if (batch == batchesReqd && start.isBefore(to)) {
 						batchCandles = getCandleSticks(instrument, getFromToUrl(instrument, granularity, start, to),
 								granularity);
 					} else {
 						batchCandles = getCandleSticks(instrument,
 								getFromCountUrl(instrument, granularity, start, MAX_CANDLES_COUNT), granularity);
+					}
+					if (batchCandles == null || batchCandles.isEmpty()) {
+						break;
 					}
 					start = batchCandles.get(batchCandles.size() - 1).getEventDate()
 							.plusSeconds((int) granularity.getGranularityInSeconds());
