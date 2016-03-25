@@ -67,7 +67,8 @@ public class OandaTransactionDataProviderServiceTest {
 	public void historicTransactionsTest() throws Exception {
 		final long minId = 175000000L;
 		final OandaTransactionDataProviderService service = new OandaTransactionDataProviderService(url, accessToken);
-		assertEquals("https://api-fxtrade.oanda.com/v1/accounts/123456/transactions?minId=" + (minId + 1),
+		assertEquals(
+				"https://api-fxtrade.oanda.com/v1/accounts/123456/transactions?minId=" + (minId + 1) + "&count=500",
 				service.getAccountMinTransactionUrl(minId, accountId));
 		OandaTransactionDataProviderService spy = createSpyAndCommonStuff("src/test/resources/historicTransactions.txt",
 				service);
