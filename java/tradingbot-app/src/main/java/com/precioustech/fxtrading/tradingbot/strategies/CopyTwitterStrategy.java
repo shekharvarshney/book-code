@@ -59,7 +59,7 @@ public class CopyTwitterStrategy<T> implements TweetHarvester<T> {
 
 	@PostConstruct
 	public void init() {
-		this.executorService = Executors.newFixedThreadPool(tweetHandlerMap.size());
+		this.executorService = Executors.newFixedThreadPool(1);
 	}
 
 	@SuppressWarnings("unchecked")
