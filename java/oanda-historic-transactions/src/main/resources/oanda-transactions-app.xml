@@ -37,6 +37,14 @@
             </props>
         </property>       
     </bean>
+    <bean id="instrumentDataProvider" class="com.precioustech.fxtrading.oanda.restapi.instrument.OandaInstrumentDataProviderService">
+		<constructor-arg index="0" value="${oanda.url}"/>
+		<constructor-arg index="1" value="${oanda.accountId}"/>
+		<constructor-arg index="2" value="${oanda.accessToken}"/>
+	</bean>
+    <bean id="instrumentService" class="com.precioustech.fxtrading.instrument.InstrumentService">
+		<constructor-arg index="0" ref="instrumentDataProvider"/>
+	</bean>
 	<bean id="transactionManager"  class="org.springframework.orm.hibernate4.HibernateTransactionManager">
         <property name="sessionFactory" ref="sessionFactory" />
     </bean>
@@ -59,6 +67,10 @@
 		<constructor-arg index="0" ref="tradeManagementProvider"/>
 		<constructor-arg index="1" ref="accountDataProvider"/>
 	</bean>
+	<bean id="historicMarketDataProvider" class="com.precioustech.fxtrading.oanda.restapi.marketdata.historic.OandaHistoricMarketDataProvider">
+		<constructor-arg index="0" value="${oanda.url}"/>
+		<constructor-arg index="1" value="${oanda.accessToken}"/>
+	</bean>
 	
 		
 	<bean id="dailyInterestTransactionTypeHandler" 
@@ -68,12 +80,29 @@
 		value-ref="dailyInterestTransactionTypeHandler"/>
 	</util:map>
 	
+	<bean id="providerHelper" class="com.precioustech.fxtrading.oanda.restapi.helper.OandaProviderHelper"/>
     <bean id="persistenceExceptionTranslationPostProcessor"
         class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
     <bean id="accountDao" class="com.precioustech.fxtrading.oanda.restapi.account.transaction.dao.OandaAccountDao"/>
+    <bean id="tradeDataDao" class="com.precioustech.fxtrading.oanda.restapi.account.transaction.dao.TradeDataDao"/>
     <bean id="transactionDao" class="com.precioustech.fxtrading.oanda.restapi.account.transaction.dao.OandaTransactionDao"/>
     <bean id="transactionService" 
     class="com.precioustech.fxtrading.oanda.restapi.account.transaction.OandaTransactionService"/>
+    <bean id="missingTransactionService" class="com.precioustech.fxtrading.oanda.restapi.account.transaction.AnalyseTransactionResultService"/>
+    <bean id="currentPriceInfoProvider" class="com.precioustech.fxtrading.oanda.restapi.marketdata.OandaCurrentPriceInfoProvider">
+		<constructor-arg index="0" value="${oanda.url}"/>
+		<constructor-arg index="1" value="${oanda.accessToken}"/>
+	</bean>
+    <bean id="pipJumpCutOffCalculator" class="com.precioustech.fxtrading.marketdata.PipJumpCutOffCalculatorService">
+		<constructor-arg index="0">
+			<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument">
+				<constructor-arg index="0" value="EUR_USD"/>
+			</bean>
+		</constructor-arg>
+		<constructor-arg index="1" ref="currentPriceInfoProvider"/>
+		<constructor-arg index="2" value="15.0"/>
+		<constructor-arg index="3" ref="instrumentService"/>		
+	</bean>
     <bean id="defaultTransactionTypeHandler"  
 		class="com.precioustech.fxtrading.oanda.restapi.account.transaction.DefaultOandaTransactionTypeHandler"/>
 </beans>

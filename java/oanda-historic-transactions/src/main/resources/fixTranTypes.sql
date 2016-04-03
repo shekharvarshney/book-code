@@ -60,3 +60,7 @@ where transaction_type in ('Buy Order','Sell Order') and transaction_id>0;
 
 update oanda_transaction_history set transaction_type='ORDER_CANCEL' 
 where transaction_type in ('Order Expired') and transaction_id>0;
+
+update oanda_transaction_history
+set instrument=replace(instrument,"/","_")
+where substring(instrument,4,1)='/' and transaction_id>0;
