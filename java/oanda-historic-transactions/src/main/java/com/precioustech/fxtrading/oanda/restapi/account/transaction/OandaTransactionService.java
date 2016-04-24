@@ -9,7 +9,6 @@ import javax.annotation.Resource;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,8 +81,9 @@ public class OandaTransactionService {
 	}
 
 	public static void main(String args[]) {
-		ApplicationContext appContext = new ClassPathXmlApplicationContext("oanda-transactions-app.xml");
+		ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext("oanda-transactions-app.xml");
 		OandaTransactionService service = appContext.getBean(OandaTransactionService.class);
 		service.persistNewTransactions();
+		appContext.close();
 	}
 }

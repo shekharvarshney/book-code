@@ -3,7 +3,6 @@ package com.precioustech.fxtrading.oanda.restapi.account.transaction;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.precioustech.fxtrading.TradingSignal;
@@ -90,9 +89,10 @@ public class AnalyseTransactionResultService {
 	}
 
 	public static void main(String[] args) {
-		ApplicationContext appContext = new ClassPathXmlApplicationContext("oanda-transactions-app.xml");
+		ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext("oanda-transactions-app.xml");
 		AnalyseTransactionResultService service = appContext.getBean(AnalyseTransactionResultService.class);
 		service.analyseMissingTransactions();
+		appContext.close();
 	}
 
 }
