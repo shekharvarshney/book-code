@@ -84,6 +84,28 @@ public class MovingAverageCalculationService<T> {
 		return sumwma;
 	}
 
+	private double calculateEMA(List<CandleStick<T>> candles, int N) {
+		double close = candles.get(N - 1).getClosePrice();
+		if (N == 1) {
+			return close;
+		}
+		double multiplier = 2.0 / (candles.size() + 1);
+		double emaPrev = calculateEMA(candles, N - 1);
+		return (close - emaPrev) * multiplier + emaPrev;
+	}
+
+	public double calculateEMA(TradeableInstrument<T> instrument, int count, CandleStickGranularity granularity) {
+		List<CandleStick<T>> candles = this.historicMarketDataProvider.getCandleSticks(instrument, granularity, count);
+		return calculateEMA(candles, candles.size());
+	}
+
+	public double calculateEMA(TradeableInstrument<T> instrument, DateTime from, DateTime to,
+			CandleStickGranularity granularity) {
+		List<CandleStick<T>> candles = this.historicMarketDataProvider.getCandleSticks(instrument, granularity, from,
+				to);
+		return calculateEMA(candles, candles.size());
+	}
+
 	public double calculateWMA(TradeableInstrument<T> instrument, int count, CandleStickGranularity granularity) {
 		List<CandleStick<T>> candles = this.historicMarketDataProvider.getCandleSticks(instrument, granularity, count);
 		return calculateWMA(candles);

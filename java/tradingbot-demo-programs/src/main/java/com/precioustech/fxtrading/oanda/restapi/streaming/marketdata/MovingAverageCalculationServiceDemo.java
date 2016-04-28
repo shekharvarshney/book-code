@@ -48,5 +48,10 @@ public class MovingAverageCalculationServiceDemo {
 				.format("SMA=%2.5f,WMA=%2.5f for instrument=%s,granularity=%s from %s to %s", gbpchfSmaAndWma.left,
 						gbpchfSmaAndWma.right, gbpchf.getInstrument(), CandleStickGranularity.W, from, to));
 
+		final int emaIntervals = 13;
+		double eurnzdEma = movingAverageCalcService.calculateEMA(eurnzd, emaIntervals, CandleStickGranularity.H1);
+		LOG.info(String.format("EMA=%2.5f for instrument=%s,granularity=%s for the last %d intervals", eurnzdEma,
+				eurnzd.getInstrument(), CandleStickGranularity.H1, countIntervals));
+
 	}
 }

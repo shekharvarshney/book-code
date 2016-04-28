@@ -46,12 +46,15 @@ public class MovingAverageCalculationServiceTest {
 		double wma = service.calculateWMA(eurnzd, candleStickCt, CandleStickGranularity.M);
 		double sma = service.calculateSMA(eurnzd, candleStickCt, CandleStickGranularity.M);
 		assertTrue(wma > sma);/* as the price has been ascending in our time frame*/
-		assertTrue(1.66021 == round(wma));
-		assertTrue(1.61664 == round(sma));
+		assertEquals(1.66021, round(wma), TradingTestConstants.precision);
+		assertEquals(1.61664, round(sma), TradingTestConstants.precision);
 		ImmutablePair<Double, Double> smaWmaPair = service.calculateSMAandWMAasPair(eurnzd, candleStickCt,
 				CandleStickGranularity.M);
 		assertTrue(sma == smaWmaPair.left);
 		assertTrue(wma == smaWmaPair.right);
+
+		double ema = service.calculateEMA(eurnzd, candleStickCt, CandleStickGranularity.M);
+		assertEquals(1.6356, ema, TradingTestConstants.precision);
 	}
 
 	@Test
@@ -74,6 +77,8 @@ public class MovingAverageCalculationServiceTest {
 				CandleStickGranularity.S5);
 		assertEquals(sma, smaWmaPair.left, TradingTestConstants.precision);
 		assertEquals(wma, smaWmaPair.right, TradingTestConstants.precision);
+		double ema = service.calculateEMA(gbpchf, from, to, CandleStickGranularity.S5);
+		assertEquals(1.42931, round(ema), TradingTestConstants.precision);
 	}
 
 	private double round(double v) {
