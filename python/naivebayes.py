@@ -80,7 +80,7 @@ def predict(isbad,sess,instr,direction):
     return (pSessionBad(sess,isbad)*pInstrumentBad(instr,isbad)*pDirectionBad(direction,isbad)*pBad(isbad))/(pSession(sess)*pInstrument(instr)*pDirection(direction))
     
 def main():
-    conn=mdb.connect('localhost','test','test','test')
+    conn=mdb.connect('localhost','lmax','lmax','lmax')
     rs=conn.cursor()
     sql="select instrument, session, is_bad_decision,count(*) ct,direction from trade_data t1 join oanda_transaction_result t2 on t1.transaction_id=t2.transaction_id group by instrument, is_bad_decision, session, direction order by 1,2,3"
     rs.execute(sql)

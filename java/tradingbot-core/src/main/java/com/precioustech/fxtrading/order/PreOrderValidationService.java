@@ -71,6 +71,26 @@ public class PreOrderValidationService<M, N, K> {
 		}
 	}
 
+	public boolean checkInstrumentNotAlreadyTraded(TradeableInstrument<N> instrument, K accountId) {
+		Collection<K> accIds = this.tradeInfoService.findAllAccountsWithInstrumentTrades(instrument);
+		if (accIds.contains(accountId)) {
+			LOG.warn(String.format("Rejecting trade with instrument %s for %s account as trade already exists",
+					instrument.getInstrument(), accountId.toString()));
+			return false;
+		} else {
+			Collection<Order<N, M>> pendingOrders = this.orderInfoService.pendingOrdersForAccount(accountId);
+			for (Order<N, M> pendingOrder : pendingOrders) {
+				if (pendingOrder.getInstrument().equals(instrument)) {
+					LOG.warn(String.format("Pending order with instrument %s already exists for account %s",
+							instrument.getInstrument(), accountId.toString()));
+					return false;
+				}
+			}
+
+		}
+		return true;
+	}
+
 	public boolean checkInstrumentNotAlreadyTraded(TradeableInstrument<N> instrument) {
 		Collection<K> accIds = this.tradeInfoService.findAllAccountsWithInstrumentTrades(instrument);
 		if (accIds.size() > 0) {

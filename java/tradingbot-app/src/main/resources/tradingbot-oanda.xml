@@ -93,6 +93,7 @@
 	<util:map id="eventPayLoadToTweetMap" key-type="com.precioustech.fxtrading.events.Event">
 		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.OrderEvents).LIMIT_ORDER_CREATE}" value-ref="orderPayLoadToTweet"/>
 		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.OrderEvents).ORDER_FILLED}" value-ref="orderPayLoadToTweet"/>
+		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.OrderEvents).MARKET_ORDER_CREATE}" value-ref="orderPayLoadToTweet"/>
 		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.TradeEvents).TRADE_CLOSE}" value-ref="tradeEventHandler"/>
 		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.TradeEvents).STOP_LOSS_FILLED}" value-ref="tradeEventHandler"/>
 		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.TradeEvents).TAKE_PROFIT_FILLED}" value-ref="tradeEventHandler"/>
@@ -115,6 +116,14 @@
 				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="GBP_CHF"/></bean>
 				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="EUR_JPY"/></bean>
 				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="GBP_NZD"/></bean>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="GBP_AUD"/></bean>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="EUR_AUD"/></bean>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="AUD_USD"/></bean>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="GBP_CAD"/></bean>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="EUR_USD"/></bean>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="EUR_CAD"/></bean>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="NZD_USD"/></bean>
+				<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument"><constructor-arg index="0" value="AUD_CHF"/></bean>
 			</list>
 		</constructor-arg>
 	</bean>

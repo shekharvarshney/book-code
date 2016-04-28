@@ -27,6 +27,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.Test;
 import org.springframework.social.twitter.api.Tweet;
 
@@ -37,6 +38,9 @@ import com.precioustech.fxtrading.TradingSignal;
 import com.precioustech.fxtrading.instrument.TradeableInstrument;
 import com.precioustech.fxtrading.marketdata.CurrentPriceInfoProvider;
 import com.precioustech.fxtrading.marketdata.Price;
+import com.precioustech.fxtrading.prediction.DirectionEnum;
+import com.precioustech.fxtrading.prediction.NaiveBayesPredictionService;
+import com.precioustech.fxtrading.prediction.utils.PredictionUtils;
 import com.precioustech.fxtrading.tradingbot.TradingAppTestConstants;
 import com.precioustech.fxtrading.tradingbot.social.twitter.CloseFXTradeTweet;
 import com.precioustech.fxtrading.tradingbot.social.twitter.NewFXTradeTweet;
@@ -85,6 +89,9 @@ public class CopyTwitterStrategyTest {
 		copyTwitterStrategy.orderQueue = orderQueue;
 		copyTwitterStrategy.init();
 		Tweet tweet1 = mock(Tweet.class);
+		NaiveBayesPredictionService naiveBayesService = mock(NaiveBayesPredictionService.class);
+		copyTwitterStrategy.naiveBayesPredictionService=naiveBayesService;
+		
 		Collection<Tweet> footweets = Lists.newArrayList(tweet1);
 		NewFXTradeTweet<String> newTrade = mock(NewFXTradeTweet.class);
 		when(tweetHandlerFoo.findNewTweets()).thenReturn(footweets);
@@ -92,6 +99,9 @@ public class CopyTwitterStrategyTest {
 		when(newTrade.getAction()).thenReturn(TradingSignal.SHORT);
 		TradeableInstrument<String> euraud = new TradeableInstrument<String>("EUR_AUD");
 		when(newTrade.getInstrument()).thenReturn(euraud);
+		when(naiveBayesService.calculateNaiveBayes(euraud.getInstrument(),
+				PredictionUtils.deriveTradingSession(new DateTime(DateTimeZone.UTC)), DirectionEnum.SHORT))
+						.thenReturn(0.6);
 		double[] profits = { 11.32, 17.7, 8.2, 19.0, 44.5, -11.0, 10, 25.5 };
 		Collection<CloseFXTradeTweet<String>> closedTrades = createClosedTrades(profits);
 		footweets = Lists.newArrayList();

@@ -27,6 +27,7 @@ import javax.annotation.Resource;
 
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -52,7 +53,11 @@ public class FadeTheMoveStrategy<T> {
 	@Autowired
 	InstrumentService<T> instrumentService;
 	@Autowired
+	@Qualifier(value = "pipJumpCutOffCalculator")
 	PipJumpCutOffCalculator<T> pipJumpCutOffCalculator;
+	@Autowired
+	@Qualifier(value = "pipDistCutOffCalculator")
+	PipJumpCutOffCalculator<T> pipDistCutOffCalculator;
 	@Resource(name = "orderQueue")
 	BlockingQueue<TradingDecision<T>> orderQueue;
 	private final Collection<TradeableInstrument<T>> instruments;
@@ -100,13 +105,14 @@ public class FadeTheMoveStrategy<T> {
 				double takeProfitPrice;
 				double limitPrice;
 				TradingSignal signal = null;
+				double dist = Math.ceil(this.pipDistCutOffCalculator.calculatePipJumpCutOff(entry.getKey()));
 				if (Math.signum(pipJump) > 0) {// Short
 					signal = TradingSignal.SHORT;
-					limitPrice = lastPayLoad.getBidPrice() + tradingConfig.getFadeTheMoveDistanceToTrade() * pip;
+					limitPrice = lastPayLoad.getBidPrice() + dist * pip;
 					takeProfitPrice = limitPrice - tradingConfig.getFadeTheMovePipsDesired() * pip;
 				} else {
 					signal = TradingSignal.LONG;
-					limitPrice = lastPayLoad.getAskPrice() - tradingConfig.getFadeTheMoveDistanceToTrade() * pip;
+					limitPrice = lastPayLoad.getAskPrice() - dist * pip;
 					takeProfitPrice = limitPrice + tradingConfig.getFadeTheMovePipsDesired() * pip;
 				}
 				this.orderQueue.offer(new TradingDecision<T>(entry.getKey(), signal, takeProfitPrice, 0.0, limitPrice,

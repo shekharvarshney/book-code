@@ -29,6 +29,15 @@ constraint fk_tran_id foreign key(transaction_id)
 references oanda_transaction_history(transaction_id)
 );
 
+create table take_profit_analysis 
+(
+transaction_id bigint(20) not null primary key,
+max_best_price decimal(20,5) not null,
+best_price_time datetime NOT NULL,
+constraint fk_tran_id2 foreign key(transaction_id) 
+references oanda_transaction_history(transaction_id)
+);
+
 CREATE or replace VIEW `trade_data` 
 AS 
 select `t1`.`transaction_id` AS `transaction_id`,`t1`.`instrument` AS `instrument`,

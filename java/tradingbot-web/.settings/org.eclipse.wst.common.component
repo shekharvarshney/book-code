@@ -10,6 +10,9 @@
         <dependent-module archiveName="tradingbot-app-1.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/tradingbot-app/tradingbot-app">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="tradingbot-prediction-api-1.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/tradingbot-prediction-api/tradingbot-prediction-api">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <dependent-module archiveName="oanda-restapi-1.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/oanda-restapi/oanda-restapi">
             <dependency-type>uses</dependency-type>
         </dependent-module>

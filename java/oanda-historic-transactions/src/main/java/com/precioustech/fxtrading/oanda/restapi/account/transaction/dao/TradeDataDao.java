@@ -1,5 +1,6 @@
 package com.precioustech.fxtrading.oanda.restapi.account.transaction.dao;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -13,16 +14,26 @@ import org.springframework.transaction.annotation.Transactional;
 import com.precioustech.fxtrading.oanda.restapi.account.transaction.entities.OandaTransactionResult;
 import com.precioustech.fxtrading.oanda.restapi.account.transaction.entities.TradeData;
 
+@SuppressWarnings("unchecked")
 public class TradeDataDao extends AbstractDao {
 
 	@Transactional
 	public List<TradeData> findTradeDataWithMissingTransactionResults() {
 		Session session = getSession();
+
 		Criteria criteria = session.createCriteria(TradeData.class, "td");
 		DetachedCriteria detCriteria = DetachedCriteria.forClass(OandaTransactionResult.class, "tr");
 		detCriteria.add(Restrictions.eqProperty("td.transactionId", "tr.transactionId"));
 		criteria.add(Subqueries.notExists(detCriteria.setProjection(Projections.property("tr.transactionId"))));
 		return criteria.list();
+	}
+
+	@Transactional
+	public Collection<TradeData> tradesByTransactionType(String transactionType) {
+
+		Criteria criteria = getSession().createCriteria(TradeData.class);
+		criteria.add(Restrictions.eq("transactionType", transactionType));
+		return (Collection<TradeData>) criteria.list();
 	}
 
 	@Transactional

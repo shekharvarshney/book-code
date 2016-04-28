@@ -8,6 +8,7 @@ function buildmodule {
     fi
 }
 SCRIPT_DIR=`pwd`
+buildmodule tradingbot-prediction-api
 buildmodule tradingbot-core
 buildmodule oanda-restapi
 buildmodule tradingbot-app

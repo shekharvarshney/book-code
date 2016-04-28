@@ -52,6 +52,17 @@ public class TradeData implements Serializable {
 	@Column(name = "duration_open", nullable = false)
 	private Integer durationOpen;
 
+	@Column(name = "direction", nullable = false)
+	private String direction;
+
+	public String getDirection() {
+		return direction;
+	}
+
+	public void setDirection(String direction) {
+		this.direction = direction;
+	}
+
 	public Long getTransactionId() {
 		return transactionId;
 	}

@@ -18,10 +18,27 @@ package com.precioustech.fxtrading;
 public class BaseTradingConfig {
 	private double minReserveRatio;
 	private double minAmountRequired;
-
 	private int maxAllowedQuantity;
 	private int maxAllowedNetContracts;
 	private double max10yrWmaOffset;
+	private double minProfitTarget;
+	private double trailingStopIncrement;
+
+	public double getMinProfitTarget() {
+		return minProfitTarget;
+	}
+
+	public void setMinProfitTarget(double minProfitTarget) {
+		this.minProfitTarget = minProfitTarget;
+	}
+
+	public double getTrailingStopIncrement() {
+		return trailingStopIncrement;
+	}
+
+	public void setTrailingStopIncrement(double trailingStopIncrement) {
+		this.trailingStopIncrement = trailingStopIncrement;
+	}
 
 	public double getMinAmountRequired() {
 		return minAmountRequired;

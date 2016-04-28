@@ -44,7 +44,8 @@ public class FadeTheMoveStrategyTest {
 	public void analysePricesTest() throws Exception {
 		TradingConfig tradingConfig = mock(TradingConfig.class);
 		// when(tradingConfig.getFadeTheMoveJumpReqdToTrade()).thenReturn(45);
-		PipJumpCutOffCalculator<String> pipCalculator = mock(PipJumpCutOffCalculator.class);
+		PipJumpCutOffCalculator<String> pipJumpCalculator = mock(PipJumpCutOffCalculator.class);
+		PipJumpCutOffCalculator<String> pipDistCalculator = mock(PipJumpCutOffCalculator.class);
 
 		when(tradingConfig.getFadeTheMoveDistanceToTrade()).thenReturn(25);
 		when(tradingConfig.getFadeTheMovePipsDesired()).thenReturn(10);
@@ -53,8 +54,11 @@ public class FadeTheMoveStrategyTest {
 		TradeableInstrument<String> eurusd = new TradeableInstrument<String>("EUR_USD");
 		TradeableInstrument<String> audchf = new TradeableInstrument<String>("AUD_CHF");
 
-		when(pipCalculator.calculatePipJumpCutOff(eq(eurusd))).thenReturn(45.0);
-		when(pipCalculator.calculatePipJumpCutOff(eq(audchf))).thenReturn(29.0);
+		when(pipJumpCalculator.calculatePipJumpCutOff(eq(eurusd))).thenReturn(45.0);
+		when(pipJumpCalculator.calculatePipJumpCutOff(eq(audchf))).thenReturn(29.0);
+
+		when(pipDistCalculator.calculatePipJumpCutOff(eq(eurusd))).thenReturn(25.0);
+		when(pipDistCalculator.calculatePipJumpCutOff(eq(audchf))).thenReturn(18.9);
 
 		FadeTheMoveStrategy<String> strategy = new FadeTheMoveStrategy<String>(Lists.newArrayList(eurusd, audchf));
 		InstrumentService<String> instrumentService = mock(InstrumentService.class);
@@ -62,7 +66,8 @@ public class FadeTheMoveStrategyTest {
 		strategy.tradingConfig = tradingConfig;
 		strategy.orderQueue = orderQueue;
 		strategy.instrumentService = instrumentService;
-		strategy.pipJumpCutOffCalculator = pipCalculator;
+		strategy.pipJumpCutOffCalculator = pipJumpCalculator;
+		strategy.pipDistCutOffCalculator = pipDistCalculator;
 		strategy.init();
 		final double[] eurusdPrices = { 1.1345, 1.1341, 1.1339, 1.1338, 1.1333, 1.1332, 1.1331, 1.1330, 1.1328, 1.1325,
 				1.1324, 1.1322, 1.1320, 1.1317, 1.1316, 1.1314, 1.1311, 1.1309, 1.1310, 1.1313, 1.1308, 1.1305, 1.1302,
@@ -101,8 +106,8 @@ public class FadeTheMoveStrategyTest {
 			} else {
 				assertEquals(TradingSignal.SHORT, decision.getSignal());
 				assertEquals(audchf, decision.getInstrument());
-				assertEquals(0.7142, decision.getLimitPrice(), TradingAppTestConstants.precision);
-				assertEquals(0.7132, decision.getTakeProfitPrice(), TradingAppTestConstants.precision);
+				assertEquals(0.7136, decision.getLimitPrice(), TradingAppTestConstants.precision);
+				assertEquals(0.7126, decision.getTakeProfitPrice(), TradingAppTestConstants.precision);
 			}
 		}
 	}

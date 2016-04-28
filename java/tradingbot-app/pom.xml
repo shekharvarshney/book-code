@@ -78,6 +78,11 @@
 		<version>1.0</version>
 	</dependency>
 	<dependency>
+		<groupId>com.precioustech</groupId>
+		<artifactId>tradingbot-prediction-api</artifactId>
+		<version>1.0</version>
+	</dependency>
+	<dependency>
          <groupId>org.twitter4j</groupId>
          <artifactId>twitter4j-core</artifactId>
          <version>${twitter4j.version}</version>

@@ -71,7 +71,8 @@ public class OrderExecutionService<M, N, K> implements Runnable {
 
 	private boolean preValidate(TradingDecision<N> decision) {
 		if (TradingSignal.NONE != decision.getSignal()
-				&& this.preOrderValidationService.checkInstrumentNotAlreadyTraded(decision.getInstrument())
+				// &&
+				// this.preOrderValidationService.checkInstrumentNotAlreadyTraded(decision.getInstrument())
 				&& this.preOrderValidationService.checkLimitsForCcy(decision.getInstrument(), decision.getSignal())) {
 			Collection<TradeableInstrument<N>> instruments = Lists.newArrayList();
 			instruments.add(decision.getInstrument());
@@ -103,19 +104,27 @@ public class OrderExecutionService<M, N, K> implements Runnable {
 				Order<N, M> order = null;
 				if (decision.getLimitPrice() == 0.0) {// market order
 					order = new Order<N, M>(decision.getInstrument(), this.baseTradingConfig.getMaxAllowedQuantity(),
-							decision.getSignal(), OrderType.MARKET, decision.getTakeProfitPrice(), decision
-									.getStopLossPrice());
+							decision.getSignal(), OrderType.MARKET, decision.getTakeProfitPrice(),
+							/*
+							 * decision .getStopLossPrice()
+							 */0.0);// TODO: remove 0
 				} else {
 					order = new Order<N, M>(decision.getInstrument(), this.baseTradingConfig.getMaxAllowedQuantity(),
-							decision.getSignal(), OrderType.LIMIT, decision.getTakeProfitPrice(), decision
-									.getStopLossPrice(), decision.getLimitPrice());
+							decision.getSignal(), OrderType.LIMIT, decision.getTakeProfitPrice(),
+							/*
+							 * decision .getStopLossPrice()
+							 */0.0, decision.getLimitPrice());
 				}
 				for (K accountId : accountIds) {
-					M orderId = this.orderManagementProvider.placeOrder(order, accountId);
-					if (orderId != null) {
-						order.setOrderId(orderId);
+					if (this.preOrderValidationService.checkInstrumentNotAlreadyTraded(decision.getInstrument(),
+							accountId)) {
+						M orderId = this.orderManagementProvider.placeOrder(order, accountId);
+						if (orderId != null) {
+							order.setOrderId(orderId);
+						}
+						break;
 					}
-					break;
+
 				}
 			} catch (Exception e) {
 				LOG.error("error encountered inside order execution service", e);

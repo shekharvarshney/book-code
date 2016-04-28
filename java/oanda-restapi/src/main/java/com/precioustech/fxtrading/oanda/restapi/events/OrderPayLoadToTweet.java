@@ -28,7 +28,7 @@ import com.precioustech.fxtrading.oanda.restapi.utils.OandaUtils;
 public class OrderPayLoadToTweet implements EventPayLoadToTweet<JSONObject, OrderEventPayLoad> {
 
 	private final Set<OrderEvents> orderEventsSupported = Sets.newHashSet(OrderEvents.ORDER_FILLED,
-			OrderEvents.LIMIT_ORDER_CREATE);
+			OrderEvents.LIMIT_ORDER_CREATE, OrderEvents.MARKET_ORDER_CREATE);
 
 	@Override
 	public String toTweet(OrderEventPayLoad payLoad) {
@@ -50,6 +50,9 @@ public class OrderPayLoadToTweet implements EventPayLoadToTweet<JSONObject, Orde
 					instrumentAsHashtag, price);
 		case LIMIT_ORDER_CREATE:
 			return String.format("%s LIMIT order of %d units for %s@%2.5f", signal.name(), tradeUnits,
+					instrumentAsHashtag, price);
+		case MARKET_ORDER_CREATE:
+			return String.format("%s MARKET order of %d units for %s@%2.5f", signal.name(), tradeUnits,
 					instrumentAsHashtag, price);
 		default:
 			return null;

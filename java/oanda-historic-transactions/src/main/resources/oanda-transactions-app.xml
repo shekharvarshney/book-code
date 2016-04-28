@@ -88,6 +88,7 @@
     <bean id="transactionDao" class="com.precioustech.fxtrading.oanda.restapi.account.transaction.dao.OandaTransactionDao"/>
     <bean id="transactionService" 
     class="com.precioustech.fxtrading.oanda.restapi.account.transaction.OandaTransactionService"/>
+    <bean id="fadeTheMoveTradesService" class="com.precioustech.fxtrading.oanda.restapi.account.transaction.AnalyseFadeTheMoveTradesService"/>
     <bean id="missingTransactionService" class="com.precioustech.fxtrading.oanda.restapi.account.transaction.AnalyseTransactionResultService"/>
     <bean id="currentPriceInfoProvider" class="com.precioustech.fxtrading.oanda.restapi.marketdata.OandaCurrentPriceInfoProvider">
 		<constructor-arg index="0" value="${oanda.url}"/>

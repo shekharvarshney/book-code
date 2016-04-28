@@ -60,7 +60,8 @@ public class OrderExecutionServiceTest<N> {
 		TradingSignal signal = TradingSignal.SHORT;
 		TradingDecision<N> tradingDecision1 = new TradingDecision<N>(gbpaud, signal, 1.855, 2.21);/*market order*/
 		TradingDecision<N> tradingDecision2 = new TradingDecision<N>(gbpaud, signal, 1.855, 2.21, 2.12);/*limit order*/
-		when(preOrderValidationService.checkInstrumentNotAlreadyTraded(gbpaud)).thenReturn(true);
+		when(preOrderValidationService.checkInstrumentNotAlreadyTraded(gbpaud, TradingTestConstants.accountId))
+				.thenReturn(true);
 		when(preOrderValidationService.checkLimitsForCcy(gbpaud, signal)).thenReturn(true);
 		Collection<TradeableInstrument<N>> instruments = Lists.newArrayList();
 		instruments.add(gbpaud);

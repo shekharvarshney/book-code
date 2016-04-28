@@ -33,7 +33,8 @@ import com.precioustech.fxtrading.trade.TradeInfoService;
 
 public class OrderFilledEventHandler implements EventHandler<JSONObject, OrderEventPayLoad>,
 		EmailContentGenerator<JSONObject> {
-	private final Set<OrderEvents> orderEventsSupported = Sets.newHashSet(OrderEvents.ORDER_FILLED);
+	private final Set<OrderEvents> orderEventsSupported = Sets.newHashSet(OrderEvents.ORDER_FILLED,
+			OrderEvents.MARKET_ORDER_CREATE);
 	private final TradeInfoService<Long, String, Long> tradeInfoService;
 
 	public OrderFilledEventHandler(TradeInfoService<Long, String, Long> tradeInfoService) {

@@ -1,0 +1,19 @@
+{
+  "instrument": "USD_CAD",
+  "time": "2016-04-01T09:21:43.000000Z",
+  "price": 1.30084,
+  "tradeOpened": {
+    "id": 10160030050,
+    "units": 500,
+    "side": "sell",
+    "takeProfit": 0,
+    "stopLoss": 0,
+    "trailingStop": 0
+  },
+  "tradesClosed": [
+    
+  ],
+  "tradeReduced": {
+    
+  }
+}

@@ -27,6 +27,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.twitter.api.Tweet;
 
@@ -36,6 +38,10 @@ import com.precioustech.fxtrading.TradingSignal;
 import com.precioustech.fxtrading.instrument.TradeableInstrument;
 import com.precioustech.fxtrading.marketdata.CurrentPriceInfoProvider;
 import com.precioustech.fxtrading.marketdata.Price;
+import com.precioustech.fxtrading.prediction.DirectionEnum;
+import com.precioustech.fxtrading.prediction.NaiveBayesPredictionService;
+import com.precioustech.fxtrading.prediction.TradingSessionEnum;
+import com.precioustech.fxtrading.prediction.utils.PredictionUtils;
 import com.precioustech.fxtrading.trade.strategies.TradingStrategy;
 import com.precioustech.fxtrading.tradingbot.social.twitter.CloseFXTradeTweet;
 import com.precioustech.fxtrading.tradingbot.social.twitter.FXTradeTweet;
@@ -44,7 +50,7 @@ import com.precioustech.fxtrading.tradingbot.social.twitter.tweethandler.FXTweet
 import com.precioustech.fxtrading.tradingbot.social.twitter.tweethandler.TweetHarvester;
 
 @TradingStrategy
-public class CopyTwitterStrategy<T> implements TweetHarvester<T> {
+public class CopyTwitterStrategy<T> implements TweetHarvester<T>, ProbabilisticTradeReview<T> {
 
 	@Resource
 	Map<String, FXTweetHandler<T>> tweetHandlerMap;
@@ -52,6 +58,8 @@ public class CopyTwitterStrategy<T> implements TweetHarvester<T> {
 	BlockingQueue<TradingDecision<T>> orderQueue;
 	@Autowired
 	CurrentPriceInfoProvider<T> currentPriceInfoProvider;
+	@Autowired
+	NaiveBayesPredictionService naiveBayesPredictionService;
 	private static final Logger LOG = Logger.getLogger(CopyTwitterStrategy.class);
 	private ExecutorService executorService = null;
 	private static final double ACCURACY_DESIRED = 0.75;
@@ -111,6 +119,7 @@ public class CopyTwitterStrategy<T> implements TweetHarvester<T> {
 
 				@Override
 				public Void call() throws Exception {
+					// LOG.info("Harvesting tweets for user :" + userId);
 					Collection<NewFXTradeTweet<T>> newTradeTweets = harvestNewTradeTweets(userId);
 					for (NewFXTradeTweet<T> newTradeTweet : newTradeTweets) {
 						Collection<CloseFXTradeTweet<T>> pnlTweets = harvestHistoricTradeTweets(userId,
@@ -118,7 +127,12 @@ public class CopyTwitterStrategy<T> implements TweetHarvester<T> {
 						TradingDecision<T> tradeDecision = analyseHistoricClosedTradesForInstrument(pnlTweets,
 								newTradeTweet);
 						if (tradeDecision.getSignal() != TradingSignal.NONE) {
-							orderQueue.offer(tradeDecision);
+							if (shouldProceed(tradeDecision)) {
+								orderQueue.offer(tradeDecision);
+							} else {
+								orderQueue.offer(new TradingDecision<>(tradeDecision.getInstrument(),
+										tradeDecision.getSignal().flip()));
+							}
 						}
 					}
 					return null;
@@ -173,5 +187,21 @@ public class CopyTwitterStrategy<T> implements TweetHarvester<T> {
 			}
 		}
 		return pnlTradeTweets;
+	}
+
+	@Override
+	public boolean shouldProceed(TradingDecision<T> tradingDecision) {
+		DirectionEnum directionEnum = DirectionEnum.valueOf(tradingDecision.getSignal().name());
+		TradingSessionEnum tradingSession = PredictionUtils.deriveTradingSession(new DateTime(DateTimeZone.UTC));
+		try {
+			double naiveBayes = this.naiveBayesPredictionService.calculateNaiveBayes(
+					tradingDecision.getInstrument().getInstrument(), tradingSession, directionEnum);
+			LOG.info(String.format("naive Bayes = %1.3f for instrument %s, session %s, direction %s", naiveBayes,
+					tradingDecision.getInstrument().getInstrument(), tradingSession.name(), directionEnum.name()));
+			return naiveBayes > 0.4;// TODO: make this configurable
+		} catch (Exception e) {
+			LOG.error("Exception whilst calculating naive bayes", e);
+			return true;
+		}
 	}
 }
