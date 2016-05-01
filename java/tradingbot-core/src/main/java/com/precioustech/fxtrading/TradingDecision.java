@@ -27,7 +27,7 @@ public class TradingDecision<T> {
 	private final double limitPrice;
 
 	public enum SRCDECISION {
-		/*INTERNAL,*/SOCIAL_MEDIA, SPIKE, FADE_THE_MOVE, OTHER/*, CCY_EVENT*/
+		/*INTERNAL,*/SOCIAL_MEDIA, SPIKE, FADE_THE_MOVE, OTHER, MOMO/*, CCY_EVENT*/
 	}
 
 	public TradingDecision(TradeableInstrument<T> instrument, TradingSignal signal) {

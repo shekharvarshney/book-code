@@ -82,7 +82,7 @@ public class OandaCurrentPriceInfoProvider implements CurrentPriceInfoProvider<S
 					+ instrumentCsv.toString());
 			httpGet.setHeader(this.authHeader);
 			httpGet.setHeader(OandaConstants.UNIX_DATETIME_HEADER);
-			LOG.info(TradingUtils.executingRequestMsg(httpGet));
+			LOG.debug(TradingUtils.executingRequestMsg(httpGet));
 			HttpResponse resp = httpClient.execute(httpGet);
 			String strResp = TradingUtils.responseToString(resp);
 			if (strResp != StringUtils.EMPTY) {

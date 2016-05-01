@@ -1,6 +1,7 @@
 package com.precioustech.fxtrading.oanda.restapi.streaming.marketdata;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
@@ -52,6 +53,17 @@ public class MovingAverageCalculationServiceDemo {
 		double eurnzdEma = movingAverageCalcService.calculateEMA(eurnzd, emaIntervals, CandleStickGranularity.H1);
 		LOG.info(String.format("EMA=%2.5f for instrument=%s,granularity=%s for the last %d intervals", eurnzdEma,
 				eurnzd.getInstrument(), CandleStickGranularity.H1, countIntervals));
+
+		Pair<Double, Double> emaMacdPair = movingAverageCalcService.macdAndEmaAsPair(eurnzd, CandleStickGranularity.W,
+				26, 12, 20);
+		LOG.info(String.format("EMA=%2.5f,MACD=%2.5f for instrument=%s,granularity=%s for the last %d intervals",
+				emaMacdPair.getRight(), emaMacdPair.getLeft(), eurnzd.getInstrument(), CandleStickGranularity.W,
+				countIntervals));
+
+		emaMacdPair = movingAverageCalcService.macdAndEmaAsPair(eurnzd, CandleStickGranularity.W, 26, 12, 30);
+		LOG.info(String.format("EMA=%2.5f,MACD=%2.5f for instrument=%s,granularity=%s for the last %d intervals",
+				emaMacdPair.getRight(), emaMacdPair.getLeft(), eurnzd.getInstrument(), CandleStickGranularity.W,
+				countIntervals));
 
 	}
 }

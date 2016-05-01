@@ -193,7 +193,7 @@ public class OandaHistoricMarketDataProvider implements HistoricMarketDataProvid
 			HttpUriRequest httpGet = new HttpGet(url);
 			httpGet.setHeader(authHeader);
 			httpGet.setHeader(OandaConstants.UNIX_DATETIME_HEADER);
-			LOG.info(TradingUtils.executingRequestMsg(httpGet));
+			LOG.debug(TradingUtils.executingRequestMsg(httpGet));
 			HttpResponse resp = httpClient.execute(httpGet);
 			String strResp = TradingUtils.responseToString(resp);
 			if (strResp != StringUtils.EMPTY) {

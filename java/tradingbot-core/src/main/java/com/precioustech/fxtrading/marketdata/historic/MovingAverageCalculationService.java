@@ -18,13 +18,18 @@ package com.precioustech.fxtrading.marketdata.historic;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Preconditions;
 import com.precioustech.fxtrading.instrument.TradeableInstrument;
 
 public class MovingAverageCalculationService<T> {
 
 	private final HistoricMarketDataProvider<T> historicMarketDataProvider;
+
+	public static int SLOW_MACD_LINE = 26;
+	public static int FAST_MACD_LINE = 12;
 
 	public MovingAverageCalculationService(HistoricMarketDataProvider<T> historicMarketDataProvider) {
 		this.historicMarketDataProvider = historicMarketDataProvider;
@@ -116,5 +121,50 @@ public class MovingAverageCalculationService<T> {
 		List<CandleStick<T>> candles = this.historicMarketDataProvider.getCandleSticks(instrument, granularity, from,
 				to);
 		return calculateWMA(candles);
+	}
+
+
+	public double calculateStandardMACD(TradeableInstrument<T> instrument, CandleStickGranularity granularity) {
+		return calculateMACD(instrument, granularity, SLOW_MACD_LINE, FAST_MACD_LINE);
+	}
+
+	public Pair<Double, Double> macdAndEmaAsPair(TradeableInstrument<T> instrument, CandleStickGranularity granularity,
+			int slowEmaCount, int fastEmaCount, int otherEma) {
+		int maxCandlesReqd = Math.max(slowEmaCount, otherEma);
+		List<CandleStick<T>> candles = this.historicMarketDataProvider.getCandleSticks(instrument, granularity,
+				maxCandlesReqd);
+		Double macdVal = null;
+		Double otherEmaVal = null;
+		if (maxCandlesReqd == slowEmaCount) {
+			macdVal = calculateMACD(slowEmaCount, fastEmaCount, candles);
+			List<CandleStick<T>> candleSubList = candles.subList(maxCandlesReqd - otherEma, candles.size());
+			otherEmaVal = calculateEMA(candleSubList, candleSubList.size());
+		} else {
+			otherEmaVal = calculateEMA(candles, candles.size());
+			List<CandleStick<T>> candleSubList = candles.subList(maxCandlesReqd - slowEmaCount, candles.size());
+			macdVal = calculateMACD(slowEmaCount, fastEmaCount, candleSubList);
+		}
+		return new ImmutablePair<Double, Double>(macdVal, otherEmaVal);
+	}
+
+	public double calculateMACD(TradeableInstrument<T> instrument, CandleStickGranularity granularity,
+			int slowEmaCount, int fastEmaCount) {
+		Preconditions.checkArgument(slowEmaCount > fastEmaCount);
+		List<CandleStick<T>> candles = this.historicMarketDataProvider.getCandleSticks(instrument, granularity,
+				slowEmaCount);
+		if(slowEmaCount > candles.size()) {
+			throw new IllegalStateException(
+					String.format("Expected atleast %d candles but got %d", slowEmaCount, candles.size()));
+		}
+		return calculateMACD(slowEmaCount, fastEmaCount, candles);
+	}
+
+	private double calculateMACD(
+			int slowEmaCount, int fastEmaCount, List<CandleStick<T>> candles) {
+		List<CandleStick<T>> candleSubList = candles.subList(slowEmaCount - fastEmaCount, candles.size());
+		double fastEma = calculateEMA(candleSubList, candleSubList.size());
+		double slowEma = calculateEMA(candles, candles.size());
+		return fastEma - slowEma;
+
 	}
 }

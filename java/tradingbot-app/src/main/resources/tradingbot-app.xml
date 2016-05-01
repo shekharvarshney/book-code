@@ -113,6 +113,9 @@
 	<bean id="fadeTheMoveStrategy" class="com.precioustech.fxtrading.tradingbot.strategies.FadeTheMoveStrategy">
 		<constructor-arg index="0" ref="tradeableInstrumentList"/>
 	</bean>
+	<bean id="momoTradeStrategy" class="com.precioustech.fxtrading.tradingbot.strategies.MomoTradeStrategy">
+		<constructor-arg index="0" ref="tradeableInstrumentList"/>
+	</bean>
 	<bean id="pipJumpCutOffCalculator" class="com.precioustech.fxtrading.marketdata.PipJumpCutOffCalculatorService">
 		<constructor-arg index="0">
 			<bean class="com.precioustech.fxtrading.instrument.TradeableInstrument">
@@ -146,6 +149,7 @@
 		<task:scheduled ref="fadeTheMoveStrategy" method="analysePrices" fixed-delay="60000"/>
 		<task:scheduled ref="copyTwitterStrategy" method="harvestAndTrade" fixed-delay="300000"/>
 		<task:scheduled ref="tradeWatcherService" method="watch" fixed-delay="120000"/>
+		<task:scheduled ref="momoTradeStrategy" method="analyseAndTrade" fixed-delay="90000"/>
 	</task:scheduled-tasks>
 	<bean id="fxTweeterList" class="java.util.ArrayList">
 		<constructor-arg index="0">
