@@ -34,7 +34,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
@@ -45,6 +45,7 @@ import com.google.common.collect.Lists;
 import com.precioustech.fxtrading.TradingConstants;
 import com.precioustech.fxtrading.account.Account;
 import com.precioustech.fxtrading.account.AccountDataProvider;
+import com.precioustech.fxtrading.oanda.restapi.OandaHttpConnectionManager;
 import com.precioustech.fxtrading.oanda.restapi.OandaJsonKeys;
 import com.precioustech.fxtrading.oanda.restapi.utils.OandaUtils;
 import com.precioustech.fxtrading.utils.TradingUtils;
@@ -64,7 +65,8 @@ public class OandaAccountDataProviderService implements AccountDataProvider<Long
 	}
 
 	CloseableHttpClient getHttpClient() {
-		return HttpClientBuilder.create().build();
+		return HttpClients.custom().setConnectionManager(OandaHttpConnectionManager.getInstance().getConnectionPool())
+				.build();
 	}
 
 	String getSingleAccountUrl(Long accountId) {
@@ -87,7 +89,7 @@ public class OandaAccountDataProviderService implements AccountDataProvider<Long
 				Object obj = JSONValue.parse(strResp);
 				JSONObject accountJson = (JSONObject) obj;
 
-				/*Parse JSON response for account information*/
+				/* Parse JSON response for account information */
 				final double accountBalance = ((Number) accountJson.get(balance)).doubleValue();
 				final double accountUnrealizedPnl = ((Number) accountJson.get(unrealizedPl)).doubleValue();
 				final double accountRealizedPnl = ((Number) accountJson.get(realizedPl)).doubleValue();
@@ -114,11 +116,9 @@ public class OandaAccountDataProviderService implements AccountDataProvider<Long
 	@Override
 	public Account<Long> getLatestAccountInfo(final Long accountId) {
 		CloseableHttpClient httpClient = getHttpClient();
-		try {
-			return getLatestAccountInfo(accountId, httpClient);
-		} finally {
-			TradingUtils.closeSilently(httpClient);
-		}
+
+		return getLatestAccountInfo(accountId, httpClient);
+
 	}
 
 	@Override
@@ -137,7 +137,8 @@ public class OandaAccountDataProviderService implements AccountDataProvider<Long
 				JSONObject jsonResp = (JSONObject) jsonObject;
 				JSONArray accounts = (JSONArray) jsonResp.get(OandaJsonKeys.accounts);
 				/*
-				 * We are doing a per account json request because not all information is returned in the array of results
+				 * We are doing a per account json request because not all
+				 * information is returned in the array of results
 				 */
 				for (Object o : accounts) {
 					JSONObject account = (JSONObject) o;
@@ -151,8 +152,6 @@ public class OandaAccountDataProviderService implements AccountDataProvider<Long
 
 		} catch (Exception e) {
 			LOG.error("Exception encountered while retrieving all accounts data", e);
-		} finally {
-			TradingUtils.closeSilently(httpClient);
 		}
 		return accInfos;
 	}

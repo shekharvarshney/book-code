@@ -42,7 +42,7 @@ import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
@@ -58,6 +58,7 @@ import com.precioustech.fxtrading.account.Account;
 import com.precioustech.fxtrading.account.AccountDataProvider;
 import com.precioustech.fxtrading.instrument.TradeableInstrument;
 import com.precioustech.fxtrading.oanda.restapi.OandaConstants;
+import com.precioustech.fxtrading.oanda.restapi.OandaHttpConnectionManager;
 import com.precioustech.fxtrading.oanda.restapi.OandaJsonKeys;
 import com.precioustech.fxtrading.oanda.restapi.utils.OandaUtils;
 import com.precioustech.fxtrading.order.Order;
@@ -81,7 +82,8 @@ public class OandaOrderManagementProvider implements OrderManagementProvider<Lon
 	}
 
 	CloseableHttpClient getHttpClient() {
-		return HttpClientBuilder.create().build();
+		return HttpClients.custom().setConnectionManager(OandaHttpConnectionManager.getInstance().getConnectionPool())
+				.build();
 	}
 
 	@Override
@@ -101,8 +103,6 @@ public class OandaOrderManagementProvider implements OrderManagementProvider<Lon
 			}
 		} catch (Exception e) {
 			LOG.warn("error deleting order id:" + orderId, e);
-		} finally {
-			TradingUtils.closeSilently(httpClient);
 		}
 		return false;
 	}
@@ -176,8 +176,6 @@ public class OandaOrderManagementProvider implements OrderManagementProvider<Lon
 		} catch (Exception e) {
 			LOG.warn(e);
 			return null;
-		} finally {
-			TradingUtils.closeSilently(httpClient);
 		}
 	}
 
@@ -200,8 +198,6 @@ public class OandaOrderManagementProvider implements OrderManagementProvider<Lon
 		} catch (Exception e) {
 			LOG.error(String.format("error encountered whilst fetching pending order for account %d and order id %d",
 					accountId, orderId), e);
-		} finally {
-			TradingUtils.closeSilently(httpClient);
 		}
 		return null;
 	}
@@ -265,8 +261,6 @@ public class OandaOrderManagementProvider implements OrderManagementProvider<Lon
 		} catch (Exception e) {
 			LOG.error(String.format("error encountered whilst fetching pending orders for account %d and instrument %s",
 					accountId, instrument.getInstrument()), e);
-		} finally {
-			TradingUtils.closeSilently(httpClient);
 		}
 		return pendingOrders;
 	}
@@ -295,8 +289,6 @@ public class OandaOrderManagementProvider implements OrderManagementProvider<Lon
 			LOG.warn(String.format("order %s could not be modified.", order.toString()));
 		} catch (Exception e) {
 			LOG.error(String.format("error encountered whilst modifying order %d for account %d", order, accountId), e);
-		} finally {
-			TradingUtils.closeSilently(httpClient);
 		}
 		return false;
 	}

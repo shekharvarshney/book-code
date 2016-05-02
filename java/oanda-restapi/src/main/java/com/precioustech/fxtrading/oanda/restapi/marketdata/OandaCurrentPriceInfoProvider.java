@@ -27,7 +27,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
@@ -41,6 +41,7 @@ import com.precioustech.fxtrading.instrument.TradeableInstrument;
 import com.precioustech.fxtrading.marketdata.CurrentPriceInfoProvider;
 import com.precioustech.fxtrading.marketdata.Price;
 import com.precioustech.fxtrading.oanda.restapi.OandaConstants;
+import com.precioustech.fxtrading.oanda.restapi.OandaHttpConnectionManager;
 import com.precioustech.fxtrading.oanda.restapi.OandaJsonKeys;
 import com.precioustech.fxtrading.oanda.restapi.utils.OandaUtils;
 import com.precioustech.fxtrading.utils.TradingUtils;
@@ -58,7 +59,8 @@ public class OandaCurrentPriceInfoProvider implements CurrentPriceInfoProvider<S
 	}
 
 	CloseableHttpClient getHttpClient() {
-		return HttpClientBuilder.create().build();
+		return HttpClients.custom().setConnectionManager(OandaHttpConnectionManager.getInstance().getConnectionPool())
+				.build();
 	}
 
 	@Override
@@ -104,8 +106,6 @@ public class OandaCurrentPriceInfoProvider implements CurrentPriceInfoProvider<S
 			}
 		} catch (Exception ex) {
 			LOG.error(ex);
-		} finally {
-			TradingUtils.closeSilently(httpClient);
 		}
 		return pricesMap;
 	}

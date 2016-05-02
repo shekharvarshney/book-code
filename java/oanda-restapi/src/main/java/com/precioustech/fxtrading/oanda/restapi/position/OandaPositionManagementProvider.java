@@ -30,7 +30,7 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
@@ -41,6 +41,7 @@ import com.google.common.collect.Lists;
 import com.precioustech.fxtrading.TradingConstants;
 import com.precioustech.fxtrading.instrument.TradeableInstrument;
 import com.precioustech.fxtrading.oanda.restapi.OandaConstants;
+import com.precioustech.fxtrading.oanda.restapi.OandaHttpConnectionManager;
 import com.precioustech.fxtrading.oanda.restapi.utils.OandaUtils;
 import com.precioustech.fxtrading.position.Position;
 import com.precioustech.fxtrading.position.PositionManagementProvider;
@@ -60,7 +61,8 @@ public class OandaPositionManagementProvider implements PositionManagementProvid
 	}
 
 	CloseableHttpClient getHttpClient() {
-		return HttpClientBuilder.create().build();
+		return HttpClients.custom().setConnectionManager(OandaHttpConnectionManager.getInstance().getConnectionPool())
+				.build();
 	}
 
 	private Position<String> parsePositionInfo(JSONObject accPosition) {
@@ -92,8 +94,6 @@ public class OandaPositionManagementProvider implements PositionManagementProvid
 			}
 		} catch (Exception ex) {
 			LOG.error("error encountered whilst fetching positions for account:" + accountId, ex);
-		} finally {
-			TradingUtils.closeSilently(httpClient);
 		}
 		return allPositions;
 	}
@@ -133,8 +133,6 @@ public class OandaPositionManagementProvider implements PositionManagementProvid
 		} catch (Exception ex) {
 			LOG.error(String.format("error encountered whilst closing position for instrument %s and account %d",
 					instrument.getInstrument(), accountId), ex);
-		} finally {
-			TradingUtils.closeSilently(httpClient);
 		}
 		return false;
 	}
@@ -150,8 +148,6 @@ public class OandaPositionManagementProvider implements PositionManagementProvid
 		} catch (Exception ex) {
 			LOG.error(String.format("error encountered whilst fetching position for instrument %s and account %d",
 					instrument.getInstrument(), accountId), ex);
-		} finally {
-			TradingUtils.closeSilently(httpClient);
 		}
 		return null;
 	}

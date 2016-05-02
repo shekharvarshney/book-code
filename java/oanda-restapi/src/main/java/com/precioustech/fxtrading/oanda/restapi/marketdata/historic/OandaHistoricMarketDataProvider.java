@@ -31,7 +31,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
@@ -45,6 +45,7 @@ import com.precioustech.fxtrading.marketdata.historic.CandleStick;
 import com.precioustech.fxtrading.marketdata.historic.CandleStickGranularity;
 import com.precioustech.fxtrading.marketdata.historic.HistoricMarketDataProvider;
 import com.precioustech.fxtrading.oanda.restapi.OandaConstants;
+import com.precioustech.fxtrading.oanda.restapi.OandaHttpConnectionManager;
 import com.precioustech.fxtrading.oanda.restapi.utils.OandaUtils;
 import com.precioustech.fxtrading.utils.TradingUtils;
 
@@ -182,7 +183,8 @@ public class OandaHistoricMarketDataProvider implements HistoricMarketDataProvid
 	}
 
 	CloseableHttpClient getHttpClient() {
-		return HttpClientBuilder.create().build();
+		return HttpClients.custom().setConnectionManager(OandaHttpConnectionManager.getInstance().getConnectionPool())
+				.build();
 	}
 
 	private List<CandleStick<String>> getCandleSticks(TradeableInstrument<String> instrument, String url,
@@ -230,8 +232,6 @@ public class OandaHistoricMarketDataProvider implements HistoricMarketDataProvid
 			LOG.error(String.format(
 					"exception encountered whilst retrieving candlesticks for instrument %s with granularity %s",
 					instrument.getInstrument(), granularity.getLabel()), e);
-		} finally {
-			TradingUtils.closeSilently(httpClient);
 		}
 		return allCandleSticks;
 	}

@@ -38,7 +38,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
@@ -52,6 +52,7 @@ import com.precioustech.fxtrading.TradingConstants;
 import com.precioustech.fxtrading.TradingSignal;
 import com.precioustech.fxtrading.instrument.TradeableInstrument;
 import com.precioustech.fxtrading.oanda.restapi.OandaConstants;
+import com.precioustech.fxtrading.oanda.restapi.OandaHttpConnectionManager;
 import com.precioustech.fxtrading.oanda.restapi.OandaJsonKeys;
 import com.precioustech.fxtrading.oanda.restapi.utils.OandaUtils;
 import com.precioustech.fxtrading.trade.Trade;
@@ -72,7 +73,8 @@ public class OandaTradeManagementProvider implements TradeManagementProvider<Lon
 	}
 
 	CloseableHttpClient getHttpClient() {
-		return HttpClientBuilder.create().build();
+		return HttpClients.custom().setConnectionManager(OandaHttpConnectionManager.getInstance().getConnectionPool())
+				.build();
 	}
 
 	String getTradesInfoUrl(Long accountId) {
@@ -121,8 +123,6 @@ public class OandaTradeManagementProvider implements TradeManagementProvider<Lon
 			}
 		} catch (Exception ex) {
 			LOG.error("error encountered whilst fetching trades for account:" + accountId, ex);
-		} finally {
-			TradingUtils.closeSilently(httpClient);
 		}
 		return allTrades;
 	}
@@ -151,8 +151,6 @@ public class OandaTradeManagementProvider implements TradeManagementProvider<Lon
 		} catch (Exception ex) {
 			LOG.error(String.format("error encountered whilst fetching trade %d for account %d", tradeId, accountId),
 					ex);
-		} finally {
-			TradingUtils.closeSilently(httpClient);
 		}
 		return null;
 	}
@@ -192,8 +190,6 @@ public class OandaTradeManagementProvider implements TradeManagementProvider<Lon
 					String.format("error while modifying trade %d to stop loss %3.5f, take profit %3.5f for account %d",
 							tradeId, stopLoss, takeProfit, accountId),
 					e);
-		} finally {
-			TradingUtils.closeSilently(httpClient);
 		}
 		return false;
 	}
@@ -215,8 +211,6 @@ public class OandaTradeManagementProvider implements TradeManagementProvider<Lon
 			}
 		} catch (Exception e) {
 			LOG.warn("error deleting trade id:" + tradeId, e);
-		} finally {
-			TradingUtils.closeSilently(httpClient);
 		}
 		return false;
 	}

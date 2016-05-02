@@ -25,7 +25,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
@@ -40,6 +40,7 @@ import com.precioustech.fxtrading.account.transaction.Transaction;
 import com.precioustech.fxtrading.account.transaction.TransactionDataProvider;
 import com.precioustech.fxtrading.events.Event;
 import com.precioustech.fxtrading.oanda.restapi.OandaConstants;
+import com.precioustech.fxtrading.oanda.restapi.OandaHttpConnectionManager;
 import com.precioustech.fxtrading.oanda.restapi.OandaJsonKeys;
 import com.precioustech.fxtrading.oanda.restapi.events.AccountEvents;
 import com.precioustech.fxtrading.oanda.restapi.events.OrderEvents;
@@ -60,7 +61,8 @@ public class OandaTransactionDataProviderService implements TransactionDataProvi
 	}
 
 	CloseableHttpClient getHttpClient() {
-		return HttpClientBuilder.create().build();
+		return HttpClients.custom().setConnectionManager(OandaHttpConnectionManager.getInstance().getConnectionPool())
+				.build();
 	}
 
 	String getSingleAccountTransactionUrl(Long transactionId, Long accountId) {

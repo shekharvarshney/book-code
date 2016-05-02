@@ -50,8 +50,8 @@ public class MomoTradeStrategy<T> {
 	private CurrentPriceInfoProvider<T> currentPriceInfoProvider;
 	@Autowired
 	InstrumentService<T> instrumentService;
-	private Set<TradeableInstrument<T>> longCandidates = Sets.newHashSet();
-	private Set<TradeableInstrument<T>> shortCandidates = Sets.newHashSet();
+	private volatile Set<TradeableInstrument<T>> longCandidates = Sets.newHashSet();
+	private volatile Set<TradeableInstrument<T>> shortCandidates = Sets.newHashSet();
 	private static double PIPS_DIST_EMA = 10.0;// TODO: in config??
 	private static final Logger LOG = Logger.getLogger(MomoTradeStrategy.class);
 
@@ -106,6 +106,7 @@ public class MomoTradeStrategy<T> {
 					"MOMO Trade requested. ema20=%2.5f, macd=%2.5f, price=%2.5f, limit=%2.5f, instrument=%s, signal=%s",
 					ema20, macd, avgPrice, limitPrice, instrument.getInstrument(), signal.name()));
 		}
+
 	}
 
 }
