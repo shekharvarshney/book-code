@@ -81,22 +81,22 @@ public class MomoTradeStrategy<T> {
 		Double limitPrice = null;
 		if (avgPrice < ema20 && macd < 0) {
 			if (shortCandidates.contains(instrument)) {
-				shortCandidates.remove(instrument);
 				pipForInstrument = instrumentService.getPipForInstrument(instrument);
 				signal = TradingSignal.SHORT;
 				limitPrice = ema20 - pipForInstrument * PIPS_DIST_EMA;
 			} else {
 				longCandidates.add(instrument);
 			}
+			shortCandidates.remove(instrument);
 		} else if (avgPrice > ema20 && macd > 0) {
 			if (longCandidates.contains(instrument)) {
-				longCandidates.remove(instrument);
 				signal = TradingSignal.LONG;
 				pipForInstrument = instrumentService.getPipForInstrument(instrument);
 				limitPrice = ema20 + pipForInstrument * PIPS_DIST_EMA;
 			} else {
 				shortCandidates.add(instrument);
 			}
+			longCandidates.remove(instrument);
 		}
 		if (signal != null) {
 			limitPrice = TradingUtils.round(limitPrice, TradingUtils.decimalPlaces(pipForInstrument));
