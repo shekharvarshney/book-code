@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,7 @@ public class TradeWatcherServiceTest {
 		TradeManagementProvider<Long, String, Long> tradeMgmtProvider = mock(TradeManagementProvider.class);
 		BaseTradingConfig config = mock(BaseTradingConfig.class);
 		TradeWatcherService<Long, String, Long> tradeWatcherService = new TradeWatcherService<>(tradeInfoService,
-				currPriceInfoProvider, instrumentService, tradeMgmtProvider, config);
+				currPriceInfoProvider, instrumentService, tradeMgmtProvider, config, Collections.emptySet());
 
 		Set<TradeableInstrument<String>> instruments = Sets.newHashSet(eurusd, gbpusd, gbpnzd, audjpy, cadchf);
 
@@ -163,7 +164,7 @@ public class TradeWatcherServiceTest {
 			trades.add(trade);
 		});
 
-		TradeWatcherService<Long, String, Long> service = new TradeWatcherService<>(null, null, null, null, null);
+		TradeWatcherService<Long, String, Long> service = new TradeWatcherService<>(null, null, null, null, null, null);
 
 		Map<TradeableInstrument<String>, Collection<Trade<Long, String, Long>>> mapView = service
 				.convertToMapView(trades);

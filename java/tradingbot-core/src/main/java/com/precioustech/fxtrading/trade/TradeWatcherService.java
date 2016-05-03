@@ -21,15 +21,17 @@ public class TradeWatcherService<M, N, K> {
 	private final InstrumentService<N> instrumentService;
 	private final BaseTradingConfig tradingConfig;
 	private final TradeManagementProvider<M, N, K> tradeManagementProvider;
-
+	private final Collection<M> ignoreMe;
 	public TradeWatcherService(TradeInfoService<M, N, K> tradeInfoService,
 			CurrentPriceInfoProvider<N> currentPriceInfoProvider, InstrumentService<N> instrumentService,
-			TradeManagementProvider<M, N, K> tradeManagementProvider, BaseTradingConfig tradingConfig) {
+			TradeManagementProvider<M, N, K> tradeManagementProvider, BaseTradingConfig tradingConfig,
+			Collection<M> ignoreMe) {
 		this.tradeInfoService = tradeInfoService;
 		this.currentPriceInfoProvider = currentPriceInfoProvider;
 		this.instrumentService = instrumentService;
 		this.tradingConfig = tradingConfig;
 		this.tradeManagementProvider = tradeManagementProvider;
+		this.ignoreMe = ignoreMe;
 	}
 
 	// called by scheduler
@@ -79,6 +81,9 @@ public class TradeWatcherService<M, N, K> {
 
 			@Override
 			public boolean test(Trade<M, N, K> trade) {
+				if (ignoreMe.contains(trade.getTradeId())) {
+					return false;
+				}
 				double pipsWon = calculatePipsWon(trade, price, instrument);
 				if (pipsWon > tradingConfig.getMinProfitTarget()) {
 					return true;

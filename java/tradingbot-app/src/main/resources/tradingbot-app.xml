@@ -142,6 +142,12 @@
 		<constructor-arg index="2" ref="instrumentService"/>
 		<constructor-arg index="3" ref="tradeManagementProvider"/>
 		<constructor-arg index="4" ref="tradingConfig"/>
+		<constructor-arg index="5">
+			<set value-type="java.lang.Long">
+				<value>10228172757</value>
+				<value>10227898703</value>
+			</set>
+		</constructor-arg>
 	</bean>
 	<bean id="copyTwitterStrategy" class="com.precioustech.fxtrading.tradingbot.strategies.CopyTwitterStrategy"/>
 	<bean id="tweetFXTradeService" class="com.precioustech.fxtrading.tradingbot.social.twitter.tweethandler.TweetFXTradeService"/>
