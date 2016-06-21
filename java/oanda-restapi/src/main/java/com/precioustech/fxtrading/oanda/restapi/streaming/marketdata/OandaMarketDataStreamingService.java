@@ -95,7 +95,7 @@ public class OandaMarketDataStreamingService extends OandaStreamingService imple
 					BufferedReader br = setUpStreamIfPossible(httpClient);
 					if (br != null) {
 						String line;
-						while ((line = br.readLine()) != null && serviceUp) {
+						while (serviceUp && (line = br.readLine()) != null) {
 							Object obj = JSONValue.parse(line);
 							JSONObject instrumentTick = (JSONObject) obj;
 							// unwrap if necessary
@@ -117,7 +117,7 @@ public class OandaMarketDataStreamingService extends OandaStreamingService imple
 								handleDisconnect(line);
 							}
 						}
-						br.close();
+						// br.close();
 						// stream.close();
 					}
 				} catch (Exception e) {

@@ -58,8 +58,9 @@ public class OrderFilledEventHandler implements EventHandler<JSONObject, OrderEv
 	@Override
 	public EmailPayLoad generate(EventPayLoad<JSONObject> payLoad) {
 		JSONObject jsonPayLoad = payLoad.getPayLoad();
-		TradeableInstrument<String> instrument = new TradeableInstrument<String>(jsonPayLoad
-				.containsKey(OandaJsonKeys.instrument) ? jsonPayLoad.get(OandaJsonKeys.instrument).toString() : "N/A");
+		TradeableInstrument<String> instrument = new TradeableInstrument<String>(
+				jsonPayLoad.get(OandaJsonKeys.instrument).toString());
+		final String side = jsonPayLoad.get(OandaJsonKeys.side).toString();
 		final String type = jsonPayLoad.get(OandaJsonKeys.type).toString();
 		final long accountId = (Long) jsonPayLoad.get(OandaJsonKeys.accountId);
 		final double accountBalance = jsonPayLoad.containsKey(OandaJsonKeys.accountBalance) ? ((Number) jsonPayLoad
@@ -68,7 +69,8 @@ public class OrderFilledEventHandler implements EventHandler<JSONObject, OrderEv
 		final String emailMsg = String.format(
 				"Order event %s received on account %d. Order id=%d. Account balance after the event=%5.2f", type,
 				accountId, orderId, accountBalance);
-		final String subject = String.format("Order event %s for %s", type, instrument.getInstrument());
+		final String subject = String.format("%s order event %s for %s", side.toUpperCase(), type,
+				instrument.getInstrument());
 		return new EmailPayLoad(subject, emailMsg);
 	}
 

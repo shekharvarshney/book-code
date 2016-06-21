@@ -35,14 +35,17 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.json.simple.JSONObject;
 
+import com.google.common.eventbus.AllowConcurrentEvents;
+import com.google.common.eventbus.Subscribe;
 import com.precioustech.fxtrading.heartbeats.HeartBeatCallback;
 import com.precioustech.fxtrading.heartbeats.HeartBeatPayLoad;
 import com.precioustech.fxtrading.oanda.restapi.OandaConstants;
 import com.precioustech.fxtrading.oanda.restapi.utils.OandaUtils;
+import com.precioustech.fxtrading.remotecontrol.ToggleServices;
 import com.precioustech.fxtrading.streaming.heartbeats.HeartBeatStreamingService;
 import com.precioustech.fxtrading.utils.TradingUtils;
 
-public abstract class OandaStreamingService implements HeartBeatStreamingService {
+public abstract class OandaStreamingService implements HeartBeatStreamingService, ToggleServices {
 	protected static final Logger LOG = Logger.getLogger(OandaStreamingService.class);
 	protected volatile boolean serviceUp = true;
 	private final HeartBeatCallback<DateTime> heartBeatCallback;
@@ -109,6 +112,17 @@ public abstract class OandaStreamingService implements HeartBeatStreamingService
 	@Override
 	public void startHeartBeatStreaming() {
 		startStreaming();
+	}
+
+	@Subscribe
+	@AllowConcurrentEvents
+	@Override
+	public synchronized void toggleService(Boolean isUp) {
+		if (Boolean.FALSE.equals(isUp)) {
+			stopStreaming();
+		} else {
+			startStreaming();
+		}
 	}
 
 	@Override

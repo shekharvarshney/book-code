@@ -33,6 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.twitter.api.Tweet;
 
 import com.google.common.collect.Lists;
+import com.google.common.eventbus.AllowConcurrentEvents;
+import com.google.common.eventbus.Subscribe;
 import com.precioustech.fxtrading.TradingDecision;
 import com.precioustech.fxtrading.TradingSignal;
 import com.precioustech.fxtrading.instrument.TradeableInstrument;
@@ -42,6 +44,7 @@ import com.precioustech.fxtrading.prediction.DirectionEnum;
 import com.precioustech.fxtrading.prediction.NaiveBayesPredictionService;
 import com.precioustech.fxtrading.prediction.TradingSessionEnum;
 import com.precioustech.fxtrading.prediction.utils.PredictionUtils;
+import com.precioustech.fxtrading.remotecontrol.ToggleServices;
 import com.precioustech.fxtrading.trade.strategies.TradingStrategy;
 import com.precioustech.fxtrading.tradingbot.social.twitter.CloseFXTradeTweet;
 import com.precioustech.fxtrading.tradingbot.social.twitter.FXTradeTweet;
@@ -50,7 +53,7 @@ import com.precioustech.fxtrading.tradingbot.social.twitter.tweethandler.FXTweet
 import com.precioustech.fxtrading.tradingbot.social.twitter.tweethandler.TweetHarvester;
 
 @TradingStrategy
-public class CopyTwitterStrategy<T> implements TweetHarvester<T>, ProbabilisticTradeReview<T> {
+public class CopyTwitterStrategy<T> implements TweetHarvester<T>, ProbabilisticTradeReview<T>, ToggleServices {
 
 	@Resource
 	Map<String, FXTweetHandler<T>> tweetHandlerMap;
@@ -64,7 +67,7 @@ public class CopyTwitterStrategy<T> implements TweetHarvester<T>, ProbabilisticT
 	private ExecutorService executorService = null;
 	private static final double ACCURACY_DESIRED = 0.75;
 	private static final int MIN_HISTORIC_TWEETS = 4;
-
+	private volatile boolean isUp = true;
 	@PostConstruct
 	public void init() {
 		this.executorService = Executors.newFixedThreadPool(1);
@@ -114,6 +117,9 @@ public class CopyTwitterStrategy<T> implements TweetHarvester<T>, ProbabilisticT
 
 	// called by scheduler
 	public synchronized void harvestAndTrade() {
+		if (!this.isUp) {
+			return;
+		}
 		for (final String userId : tweetHandlerMap.keySet()) {
 			this.executorService.submit(new Callable<Void>() {
 
@@ -203,5 +209,13 @@ public class CopyTwitterStrategy<T> implements TweetHarvester<T>, ProbabilisticT
 			LOG.error("Exception whilst calculating naive bayes", e);
 			return true;
 		}
+	}
+
+	@Override
+	@Subscribe
+	@AllowConcurrentEvents
+	public synchronized void toggleService(Boolean serviceFlag) {
+		this.isUp = serviceFlag;
+
 	}
 }

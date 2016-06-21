@@ -97,7 +97,7 @@ public class OandaEventsStreamingService extends OandaStreamingService implement
 					BufferedReader br = setUpStreamIfPossible(httpClient);
 					if (br != null) {
 						String line;
-						while ((line = br.readLine()) != null && serviceUp) {
+						while (serviceUp && (line = br.readLine()) != null) {
 							Object obj = JSONValue.parse(line);
 							JSONObject jsonPayLoad = (JSONObject) obj;
 							if (jsonPayLoad.containsKey(heartbeat)) {
@@ -116,7 +116,7 @@ public class OandaEventsStreamingService extends OandaStreamingService implement
 								handleDisconnect(line);
 							}
 						}
-						br.close();
+						// br.close();
 					}
 
 				} catch (Exception e) {

@@ -6,15 +6,18 @@ import java.util.function.Predicate;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.eventbus.AllowConcurrentEvents;
+import com.google.common.eventbus.Subscribe;
 import com.precioustech.fxtrading.BaseTradingConfig;
 import com.precioustech.fxtrading.TradingSignal;
 import com.precioustech.fxtrading.instrument.InstrumentService;
 import com.precioustech.fxtrading.instrument.TradeableInstrument;
 import com.precioustech.fxtrading.marketdata.CurrentPriceInfoProvider;
 import com.precioustech.fxtrading.marketdata.Price;
+import com.precioustech.fxtrading.remotecontrol.ToggleServices;
 import com.precioustech.fxtrading.utils.TradingUtils;
 
-public class TradeWatcherService<M, N, K> {
+public class TradeWatcherService<M, N, K> implements ToggleServices {
 
 	private final TradeInfoService<M, N, K> tradeInfoService;
 	private final CurrentPriceInfoProvider<N> currentPriceInfoProvider;
@@ -22,6 +25,7 @@ public class TradeWatcherService<M, N, K> {
 	private final BaseTradingConfig tradingConfig;
 	private final TradeManagementProvider<M, N, K> tradeManagementProvider;
 	private final Collection<M> ignoreMe;
+	private volatile boolean shouldWatch = true;
 	public TradeWatcherService(TradeInfoService<M, N, K> tradeInfoService,
 			CurrentPriceInfoProvider<N> currentPriceInfoProvider, InstrumentService<N> instrumentService,
 			TradeManagementProvider<M, N, K> tradeManagementProvider, BaseTradingConfig tradingConfig,
@@ -34,8 +38,18 @@ public class TradeWatcherService<M, N, K> {
 		this.ignoreMe = ignoreMe;
 	}
 
+	@Subscribe
+	@AllowConcurrentEvents
+	@Override
+	public synchronized void toggleService(Boolean shouldWatch) {
+		this.shouldWatch = shouldWatch;
+	}
+
 	// called by scheduler
 	public void watch() {
+		if (!shouldWatch) {
+			return;
+		}
 		Collection<Trade<M, N, K>> allTrades = this.tradeInfoService.getAllTrades();
 		final Map<TradeableInstrument<N>, Collection<Trade<M, N, K>>> instrumentTradeMap = convertToMapView(allTrades);
 		final Map<TradeableInstrument<N>, Price<N>> currentInstrumentPricesMap = this.currentPriceInfoProvider

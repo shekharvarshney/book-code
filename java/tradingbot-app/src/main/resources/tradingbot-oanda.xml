@@ -83,7 +83,6 @@
 	<util:map id="eventEmailContentGeneratorMap" key-type="com.precioustech.fxtrading.events.Event">
 		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.OrderEvents).MARKET_ORDER_CREATE}" value-ref="orderEventHandler"/>
 		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.OrderEvents).LIMIT_ORDER_CREATE}" value-ref="orderEventHandler"/>
-		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.OrderEvents).ORDER_CANCEL}" value-ref="orderEventHandler"/>
 		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.OrderEvents).ORDER_FILLED}" value-ref="orderEventHandler"/>
 		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.TradeEvents).TRADE_CLOSE}" value-ref="tradeEventHandler"/>
 		<entry key="#{T(com.precioustech.fxtrading.oanda.restapi.events.TradeEvents).STOP_LOSS_FILLED}" value-ref="tradeEventHandler"/>

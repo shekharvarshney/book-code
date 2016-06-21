@@ -39,13 +39,14 @@ public class OrderFilledEventHandlerTest {
 		EventPayLoad<JSONObject> payLoad = new OrderEventPayLoad(OrderEvents.ORDER_FILLED, jsonPayLoad);
 		when(jsonPayLoad.containsKey(OandaJsonKeys.instrument)).thenReturn(true);
 		when(jsonPayLoad.get(OandaJsonKeys.instrument)).thenReturn("GBP_CHF");
+		when(jsonPayLoad.get(OandaJsonKeys.side)).thenReturn("buy");
 		when(jsonPayLoad.get(OandaJsonKeys.type)).thenReturn(OrderEvents.ORDER_FILLED);
 		when(jsonPayLoad.get(OandaJsonKeys.accountId)).thenReturn(OandaTestConstants.accountId);
 		when(jsonPayLoad.containsKey(OandaJsonKeys.accountBalance)).thenReturn(true);
 		when(jsonPayLoad.get(OandaJsonKeys.accountBalance)).thenReturn(178.95);
 		when(jsonPayLoad.get(OandaJsonKeys.id)).thenReturn(1002L);
 		EmailPayLoad emailPayLoad = eventHandler.generate(payLoad);
-		assertEquals("Order event ORDER_FILLED for GBP_CHF", emailPayLoad.getSubject());
+		assertEquals("BUY order event ORDER_FILLED for GBP_CHF", emailPayLoad.getSubject());
 		assertEquals(
 				"Order event ORDER_FILLED received on account 123456. Order id=1002. Account balance after the event=178.95",
 				emailPayLoad.getBody());

@@ -25,9 +25,10 @@ import org.apache.log4j.Logger;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
+import com.precioustech.fxtrading.remotecontrol.ToggleServices;
 import com.precioustech.fxtrading.streaming.heartbeats.HeartBeatStreamingService;
 
-public abstract class AbstractHeartBeatService<T> {
+public abstract class AbstractHeartBeatService<T> implements ToggleServices {
 
 	protected abstract boolean isAlive(HeartBeatPayLoad<T> payLoad);
 
@@ -40,7 +41,7 @@ public abstract class AbstractHeartBeatService<T> {
 	protected final Collection<HeartBeatStreamingService> heartBeatStreamingServices;
 	protected final long initWait = 10000L;
 	long warmUpTime = MAX_HEARTBEAT_DELAY;/*accessibility package friendly for unit testing*/
-
+	Thread heartBeatsObserverThread = null;
 	public AbstractHeartBeatService(Collection<HeartBeatStreamingService> heartBeatStreamingServices) {
 		this.heartBeatStreamingServices = heartBeatStreamingServices;
 		for (HeartBeatStreamingService heartBeatStreamingService : heartBeatStreamingServices) {
@@ -50,41 +51,57 @@ public abstract class AbstractHeartBeatService<T> {
 
 	@PostConstruct
 	public void init() {
+		this.heartBeatsObserverThread = createHeartbeatObserverThread();
 		this.heartBeatsObserverThread.start();
 	}
 
-	final Thread heartBeatsObserverThread = new Thread(new Runnable() {
-
-		private void sleep() {
-			try {
-				Thread.sleep(warmUpTime);/*let the streams start naturally*/
-			} catch (InterruptedException e1) {
-				LOG.error(e1);
-			}
+	@Subscribe
+	@AllowConcurrentEvents
+	@Override
+	public synchronized void toggleService(Boolean isUp) {
+		this.serviceUp = isUp;
+		if (this.serviceUp) {
+			init();
 		}
+	}
 
-		@Override
-		public void run() {
-			while (serviceUp) {
-				sleep();
-				for (Map.Entry<String, HeartBeatStreamingService> entry : heartBeatProducerMap.entrySet()) {
-					long startWait = initWait;// start with 2secs
-					while (serviceUp && !isAlive(payLoadMap.get(entry.getKey()))) {
-						entry.getValue().startHeartBeatStreaming();
-						LOG.warn(String
-								.format("heartbeat source %s is not responding. just restarted it and will listen for heartbeat after %d ms",
-										entry.getKey(), startWait));
-						try {
-							Thread.sleep(startWait);
-						} catch (InterruptedException e) {
-							LOG.error(e);
+	private Thread createHeartbeatObserverThread() {
+		return new Thread(new Runnable() {
+
+			private void sleep() {
+				try {
+					Thread.sleep(
+							warmUpTime);/* let the streams start naturally */
+				} catch (InterruptedException e1) {
+					LOG.error(e1);
+				}
+			}
+
+			@Override
+			public void run() {
+				while (serviceUp) {
+					sleep();
+					for (Map.Entry<String, HeartBeatStreamingService> entry : heartBeatProducerMap.entrySet()) {
+						long startWait = initWait;// start with 2secs
+						while (serviceUp && !isAlive(payLoadMap.get(entry.getKey()))) {
+							entry.getValue().startHeartBeatStreaming();
+							LOG.warn(String.format(
+									"heartbeat source %s is not responding. just restarted it and will listen for heartbeat after %d ms",
+									entry.getKey(), startWait));
+							try {
+								Thread.sleep(startWait);
+							} catch (InterruptedException e) {
+								LOG.error(e);
+							}
+							startWait = Math.min(MAX_HEARTBEAT_DELAY, 2 * startWait);
 						}
-						startWait = Math.min(MAX_HEARTBEAT_DELAY, 2 * startWait);
 					}
 				}
 			}
-		}
-	}, "HeartBeatMonitorThread");
+		}, "HeartBeatMonitorThread");
+	}
+
+
 
 	@Subscribe
 	@AllowConcurrentEvents

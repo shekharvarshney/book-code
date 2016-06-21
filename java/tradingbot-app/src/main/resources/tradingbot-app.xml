@@ -5,6 +5,8 @@
     xmlns:util="http://www.springframework.org/schema/util"
     xmlns:task="http://www.springframework.org/schema/task"
     xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:mail="http://www.springframework.org/schema/integration/mail"
+    xmlns:int="http://www.springframework.org/schema/integration"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
     http://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.springframework.org/schema/context
@@ -14,7 +16,9 @@
     http://www.springframework.org/schema/util
     http://www.springframework.org/schema/util/spring-util.xsd
     http://www.springframework.org/schema/task
-    http://www.springframework.org/schema/task/spring-task.xsd">
+    http://www.springframework.org/schema/task/spring-task.xsd
+    http://www.springframework.org/schema/integration/mail
+    http://www.springframework.org/schema/integration/mail/spring-integration-mail.xsd">
 	<context:annotation-config/>
 	<context:property-placeholder location="classpath:tradingbot.properties" ignore-unresolvable="true"/>
 	<task:scheduler id="taskScheduler" pool-size="5"/>
@@ -46,11 +50,45 @@
                 <prop key="mail.smtp.auth">true</prop>
                 <prop key="mail.smtp.starttls.enable">true</prop>
                 <prop key="mail.smtp.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>
-                <prop key="mail.debug">false</prop>
+                <prop key="mail.debug">${mail.debug}</prop>
                 <prop key="mail.smtp.socketFactory.fallback">false</prop>
             </props>
         </property>
     </bean>
+    <util:properties id="javaInboundMailProperties">
+        <prop key="mail.imap.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>
+        <prop key="mail.imap.socketFactory.fallback">false</prop>
+        <prop key="mail.store.protocol">imaps</prop>
+        <prop key="mail.debug">${mail.debug}</prop>
+    </util:properties>
+    
+    <mail:inbound-channel-adapter id="imapAdapter"
+      	store-uri="imaps://${imaps.user}:${imaps.password}@imap.gmail.com:993/INBOX"
+      	java-mail-properties="javaInboundMailProperties"
+      	channel="receiveEmailChannel"
+      	should-delete-messages="true"
+      	should-mark-messages-as-read="true"
+      	auto-startup="true">
+      <int:poller fixed-delay="60" time-unit="SECONDS"/>
+	</mail:inbound-channel-adapter>
+    <int:channel id="receiveEmailChannel" />
+    <int:service-activator input-channel="receiveEmailChannel" 
+    		ref="eventEmailNotifier" method="receiveEmail"/>
+    
+    <bean id="remoteControl" class="com.precioustech.fxtrading.remotecontrol.RemoteControlService">
+    	<constructor-arg index="0" ref="eventBus"/>
+    </bean>
+    <bean id="suspendBot" class="com.precioustech.fxtrading.remotecontrol.handlers.SuspendBotCommandHandler">
+    	<constructor-arg index="0" ref="remoteControl"/>
+    </bean>
+    <bean id="resumeBot" class="com.precioustech.fxtrading.remotecontrol.handlers.ResumeBotCommandHandler">
+    	<constructor-arg index="0" ref="remoteControl"/>
+    </bean>
+    <util:map id="remoteControlMap" key-type="com.precioustech.fxtrading.remotecontrol.Command">
+		<entry key="#{T(com.precioustech.fxtrading.remotecontrol.Command).SUSPEND_BOT}" value-ref="suspendBot"/>
+		<entry key="#{T(com.precioustech.fxtrading.remotecontrol.Command).RESUME_BOT}" value-ref="resumeBot"/>
+	</util:map>
+    
 	<bean id="eventCallback" class="com.precioustech.fxtrading.events.EventCallbackImpl">
 		<constructor-arg index="0" ref="eventBus"/>
 	</bean>
@@ -144,8 +182,8 @@
 		<constructor-arg index="4" ref="tradingConfig"/>
 		<constructor-arg index="5">
 			<set value-type="java.lang.Long">
-				<value>10228172757</value>
-				<value>10227898703</value>
+				<value>10231689924</value>
+				<value>10240166701</value>
 			</set>
 		</constructor-arg>
 	</bean>
