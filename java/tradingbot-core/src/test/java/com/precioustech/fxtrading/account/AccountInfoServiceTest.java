@@ -66,7 +66,7 @@ public class AccountInfoServiceTest {
 		when(baseTradingConfig.getMinAmountRequired()).thenReturn(200.00);
 		AccountDataProvider<Long> accountDataProvider = mock(AccountDataProvider.class);
 		AccountInfoService<Long, String> accInfoService = new AccountInfoService<Long, String>(accountDataProvider,
-				null, baseTradingConfig, null);
+				null, baseTradingConfig, null, Collections.emptyList());
 		List<Account<Long>> accounts = createAccounts();
 		when(accountDataProvider.getLatestAccountInfo()).thenReturn(accounts);
 		Collection<Long> eligibleAccounts = accInfoService.findAccountsToTrade();
@@ -107,7 +107,7 @@ public class AccountInfoServiceTest {
 		CurrentPriceInfoProvider<String> currentPriceInfoProvider = mock(CurrentPriceInfoProvider.class);
 		ProviderHelper providerHelper = mock(ProviderHelper.class);
 		AccountInfoService<Long, String> accInfoService = new AccountInfoService<Long, String>(accountDataProvider,
-				currentPriceInfoProvider, null, providerHelper);
+				currentPriceInfoProvider, null, providerHelper, Collections.emptyList());
 		TradeableInstrument<String> gbpusd = new TradeableInstrument<String>("GBP_USD");
 		TradeableInstrument<String> gbpchf = new TradeableInstrument<String>("GBP_CHF");
 		Account<Long> account = mock(Account.class);
@@ -131,7 +131,7 @@ public class AccountInfoServiceTest {
 		CurrentPriceInfoProvider<String> currentPriceInfoProvider = mock(CurrentPriceInfoProvider.class);
 		ProviderHelper providerHelper = mock(ProviderHelper.class);
 		AccountInfoService<Long, String> accInfoService = new AccountInfoService<Long, String>(accountDataProvider,
-				currentPriceInfoProvider, null, providerHelper);
+				currentPriceInfoProvider, null, providerHelper, Collections.emptyList());
 		TradeableInstrument<String> audusd = new TradeableInstrument<String>("AUD_USD");
 		TradeableInstrument<String> euraud = new TradeableInstrument<String>("EUR_AUD");
 		TradeableInstrument<String> audeur = new TradeableInstrument<String>("AUD_EUR");

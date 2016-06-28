@@ -42,7 +42,7 @@ public class EventEmailNotifierTest {
 	public void emailNotifyTest() {
 		EventEmailNotifier<String> mailNotifier = new EventEmailNotifier<String>();
 		try {
-			mailNotifier.notifyByEmail(null);
+			mailNotifier.notifyByEmail((EventPayLoad<String>) null);
 			fail("Null payload should have resulted in an exception");
 		} catch (Exception e) {
 			// as expected

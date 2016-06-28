@@ -9,7 +9,7 @@ public interface RemoteControl<M, N, L> {
 
 	void resumeTrading();
 
-	String ping();
+	void ping(String response);
 
 	void suspendTradingInCurrency(String currency);
 

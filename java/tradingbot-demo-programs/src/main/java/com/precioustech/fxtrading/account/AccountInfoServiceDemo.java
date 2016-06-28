@@ -1,6 +1,7 @@
 package com.precioustech.fxtrading.account;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.log4j.Logger;
 
@@ -35,10 +36,10 @@ public class AccountInfoServiceDemo {
 		BaseTradingConfig tradingConfig = new BaseTradingConfig();
 		tradingConfig.setMinReserveRatio(0.05);
 		tradingConfig.setMinAmountRequired(100.00);
-		ProviderHelper<String> providerHelper = new OandaProviderHelper();
+		ProviderHelper<String, Long> providerHelper = new OandaProviderHelper();
 
 		AccountInfoService<Long, String> accountInfoService = new AccountInfoService<Long, String>(accountDataProvider,
-				currentPriceInfoProvider, tradingConfig, providerHelper);
+				currentPriceInfoProvider, tradingConfig, providerHelper, Collections.emptyList());
 
 		Collection<Account<Long>> accounts = accountInfoService.getAllAccounts();
 		LOG.info(String.format("Found %d accounts to trade for user %s", accounts.size(), userName));

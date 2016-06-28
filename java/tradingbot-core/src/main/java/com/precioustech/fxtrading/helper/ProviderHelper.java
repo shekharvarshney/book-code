@@ -16,11 +16,15 @@
 package com.precioustech.fxtrading.helper;
 
 /**
+ * 
+ * @author shekhar
  *
  * @param <T>
  *            The type of Long/Short notation
+ * @param <L>
+ *            The type of transaction id
  */
-public interface ProviderHelper<T> {
+public interface ProviderHelper<T, L> {
 
 	/**
 	 * 
@@ -68,4 +72,6 @@ public interface ProviderHelper<T> {
 	 *         platform
 	 */
 	T getShortNotation();
+
+	L toTransactionId(String strTransactionId);
 }

@@ -2,13 +2,19 @@ package com.precioustech.fxtrading.trade;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Predicate;
+
+import org.apache.log4j.Logger;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.precioustech.fxtrading.BaseTradingConfig;
+import com.precioustech.fxtrading.ObjectWrapper;
 import com.precioustech.fxtrading.TradingSignal;
 import com.precioustech.fxtrading.instrument.InstrumentService;
 import com.precioustech.fxtrading.instrument.TradeableInstrument;
@@ -26,6 +32,8 @@ public class TradeWatcherService<M, N, K> implements ToggleServices {
 	private final TradeManagementProvider<M, N, K> tradeManagementProvider;
 	private final Collection<M> ignoreMe;
 	private volatile boolean shouldWatch = true;
+	private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
+	private static final Logger LOG = Logger.getLogger(TradeWatcherService.class);
 	public TradeWatcherService(TradeInfoService<M, N, K> tradeInfoService,
 			CurrentPriceInfoProvider<N> currentPriceInfoProvider, InstrumentService<N> instrumentService,
 			TradeManagementProvider<M, N, K> tradeManagementProvider, BaseTradingConfig tradingConfig,
@@ -36,6 +44,19 @@ public class TradeWatcherService<M, N, K> implements ToggleServices {
 		this.tradingConfig = tradingConfig;
 		this.tradeManagementProvider = tradeManagementProvider;
 		this.ignoreMe = ignoreMe;
+	}
+
+	@Subscribe
+	@AllowConcurrentEvents
+	public void addToIgnore(ObjectWrapper<M> transactionId) {
+		Lock lock = this.rwLock.writeLock();
+		try {
+			lock.lock();
+			ignoreMe.add(transactionId.getWrappedObject());
+			LOG.info(String.format("Added %s to the  ignore list", transactionId.getWrappedObject().toString()));
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	@Subscribe
@@ -95,9 +116,16 @@ public class TradeWatcherService<M, N, K> implements ToggleServices {
 
 			@Override
 			public boolean test(Trade<M, N, K> trade) {
-				if (ignoreMe.contains(trade.getTradeId())) {
-					return false;
+				Lock lock = rwLock.readLock();
+				try {
+					lock.lock();
+					if (ignoreMe.contains(trade.getTradeId())) {
+						return false;
+					}
+				} finally {
+					lock.unlock();
 				}
+
 				double pipsWon = calculatePipsWon(trade, price, instrument);
 				if (pipsWon > tradingConfig.getMinProfitTarget()) {
 					return true;

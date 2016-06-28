@@ -46,14 +46,15 @@ public class AccountInfoService<K, N> {
 	private final CurrentPriceInfoProvider<N> currentPriceInfoProvider;
 	private final ProviderHelper providerHelper;
 	private Comparator<Account<K>> accountComparator = new MarginAvailableComparator<K>();
-
+	private final Collection<K> ignoreMe;
 	public AccountInfoService(AccountDataProvider<K> accountDataProvider,
 			CurrentPriceInfoProvider<N> currentPriceInfoProvider, BaseTradingConfig baseTradingConfig,
-			ProviderHelper providerHelper) {
+			ProviderHelper providerHelper, Collection<K> ignoreMe) {
 		this.accountDataProvider = accountDataProvider;
 		this.baseTradingConfig = baseTradingConfig;
 		this.currentPriceInfoProvider = currentPriceInfoProvider;
 		this.providerHelper = providerHelper;
+		this.ignoreMe = ignoreMe;
 	}
 
 	public Collection<Account<K>> getAllAccounts() {
@@ -83,7 +84,8 @@ public class AccountInfoService<K, N> {
 		Collection<K> accountsFound = Lists.newArrayList();
 		Collections.sort(accounts, accountComparator);
 		for (Account<K> account : accounts) {
-			if (account.getAmountAvailableRatio() >= baseTradingConfig.getMinReserveRatio()
+			if (!this.ignoreMe.contains(account.getAccountId())
+					&& account.getAmountAvailableRatio() >= baseTradingConfig.getMinReserveRatio()
 					&& account.getNetAssetValue() >= baseTradingConfig.getMinAmountRequired()) {
 				accountsFound.add(account.getAccountId());
 			}

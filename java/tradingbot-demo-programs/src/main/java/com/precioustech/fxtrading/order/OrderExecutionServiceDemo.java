@@ -1,5 +1,6 @@
 package com.precioustech.fxtrading.order;
 
+import java.util.Collections;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -51,9 +52,9 @@ public class OrderExecutionServiceDemo {
 		tradingConfig.setMinReserveRatio(0.05);
 		tradingConfig.setMinAmountRequired(100.00);
 		tradingConfig.setMaxAllowedQuantity(10);
-		ProviderHelper<String> providerHelper = new OandaProviderHelper();
+		ProviderHelper<String, Long> providerHelper = new OandaProviderHelper();
 		AccountInfoService<Long, String> accountInfoService = new AccountInfoService<Long, String>(accountDataProvider,
-				currentPriceInfoProvider, tradingConfig, providerHelper);
+				currentPriceInfoProvider, tradingConfig, providerHelper, Collections.emptyList());
 
 		OrderManagementProvider<Long, String, Long> orderManagementProvider = new OandaOrderManagementProvider(url,
 				accessToken, accountDataProvider);

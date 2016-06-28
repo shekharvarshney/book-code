@@ -21,7 +21,7 @@ import com.precioustech.fxtrading.oanda.restapi.OandaConstants;
 import com.precioustech.fxtrading.oanda.restapi.utils.OandaUtils;
 import com.precioustech.fxtrading.utils.TradingUtils;
 
-public class OandaProviderHelper implements ProviderHelper<String> {
+public class OandaProviderHelper implements ProviderHelper<String, Long> {
 
 	@Override
 	public String fromIsoFormat(String instrument) {
@@ -54,6 +54,18 @@ public class OandaProviderHelper implements ProviderHelper<String> {
 	@Override
 	public String getShortNotation() {
 		return OandaConstants.SELL;
+	}
+
+	@Override
+	public Long toTransactionId(String strTransactionId) {
+		if (strTransactionId != null) {
+			try {
+				return Long.parseLong(strTransactionId);
+			} catch (NumberFormatException e) {
+				// do nothing
+			}
+		}
+		return null;
 	}
 
 }

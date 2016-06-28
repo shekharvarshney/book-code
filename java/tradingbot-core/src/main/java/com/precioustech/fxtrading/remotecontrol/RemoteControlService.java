@@ -1,7 +1,9 @@
 package com.precioustech.fxtrading.remotecontrol;
 
 import com.google.common.eventbus.EventBus;
+import com.precioustech.fxtrading.ObjectWrapper;
 import com.precioustech.fxtrading.TradingSignal;
+import com.precioustech.fxtrading.events.notification.email.EmailPayLoad;
 import com.precioustech.fxtrading.instrument.TradeableInstrument;
 
 public class RemoteControlService<M, N, L> implements RemoteControl<M, N, L> {
@@ -30,48 +32,42 @@ public class RemoteControlService<M, N, L> implements RemoteControl<M, N, L> {
 
 	@Override
 	public void resumeTradingInCurrency(String currency) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void suspendTradingInInstrument(TradeableInstrument<N> instrument) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void resumeTradingInInstrument(TradeableInstrument<N> instrument) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void placeMarketOrder(TradeableInstrument<N> instrument, TradingSignal signal) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void placeMarketOrder(TradeableInstrument<N> instrument, TradingSignal signal, long units) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void placeMarketOrder(TradeableInstrument<N> instrument, TradingSignal signal, long units, M accountId) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void stopTrailingTransaction(L transactionId) {
-
+		this.eventBus.post(new ObjectWrapper<L>(transactionId));
 	}
 
 	@Override
-	public String ping() {
-		return null;
+	public void ping(String response) {
+		this.eventBus.post(new EmailPayLoad("Ping Response from TradingBot", response));
 	}
 
 }

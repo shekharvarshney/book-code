@@ -24,7 +24,7 @@ public class AnalyseTransactionResultService {
 	@Autowired
 	private HistoricMarketDataProvider<String> historicMarketDataProvider;
 	@Autowired
-	private ProviderHelper<String> providerHelper;
+	private ProviderHelper<String, Long> providerHelper;
 	@Autowired
 	private InstrumentService<String> instrumentService;
 	@Autowired

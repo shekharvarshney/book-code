@@ -56,16 +56,22 @@ public class EventEmailNotifier<T> {
 
 	@Subscribe
 	@AllowConcurrentEvents
+	public void notifyByEmail(EmailPayLoad emailPayLoad) {
+		SimpleMailMessage msg = new SimpleMailMessage();
+		msg.setSubject(emailPayLoad.getSubject());
+		msg.setTo(tradingConfig.getMailTo());
+		msg.setText(emailPayLoad.getBody());
+		this.mailSender.send(msg);
+	}
+
+	@Subscribe
+	@AllowConcurrentEvents
 	public void notifyByEmail(EventPayLoad<T> payLoad) {
 		Preconditions.checkNotNull(payLoad);
 		EmailContentGenerator<T> emailContentGenerator = eventEmailContentGeneratorMap.get(payLoad.getEvent());
 		if (emailContentGenerator != null) {
 			EmailPayLoad emailPayLoad = emailContentGenerator.generate(payLoad);
-			SimpleMailMessage msg = new SimpleMailMessage();
-			msg.setSubject(emailPayLoad.getSubject());
-			msg.setTo(tradingConfig.getMailTo());
-			msg.setText(emailPayLoad.getBody());
-			this.mailSender.send(msg);
+			notifyByEmail(emailPayLoad);
 		} else {
 			LOG.warn("No email content generator found for event:" + payLoad.getEvent().name());
 		}

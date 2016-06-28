@@ -34,7 +34,7 @@
 		<property name="max10yrWmaOffset" value="0.1"/>
 		<property name="fadeTheMoveJumpReqdToTrade" value="45"/>
 		<property name="fadeTheMoveDistanceToTrade" value="25"/>
-		<property name="fadeTheMovePipsDesired" value="18"/>
+		<property name="fadeTheMovePipsDesired" value="22"/>
 		<property name="fadeTheMovePriceExpiry" value="15"/>
 		<property name="minProfitTarget" value="15"/>
 		<property name="trailingStopIncrement" value="5"/>
@@ -84,9 +84,24 @@
     <bean id="resumeBot" class="com.precioustech.fxtrading.remotecontrol.handlers.ResumeBotCommandHandler">
     	<constructor-arg index="0" ref="remoteControl"/>
     </bean>
+    <bean id="stopTrailing" class="com.precioustech.fxtrading.remotecontrol.handlers.StopTrailingTransactionCommandHandler">
+    	<constructor-arg index="0" ref="remoteControl"/>
+    	<constructor-arg index="1" ref="providerHelper"/>
+    </bean>
+    <bean id="ping" class="com.precioustech.fxtrading.remotecontrol.handlers.PingCommandHandler">
+    	<constructor-arg index="0" ref="remoteControl"/>
+    	<constructor-arg index="1">
+    		<bean class="com.precioustech.fxtrading.remotecontrol.handlers.PingTradeDataGenerator">
+    			<constructor-arg index="0" ref="tradeInfoService"/>
+    			<constructor-arg index="1" ref="accountInfoService"/>
+    		</bean>
+    	</constructor-arg>
+    </bean>
     <util:map id="remoteControlMap" key-type="com.precioustech.fxtrading.remotecontrol.Command">
 		<entry key="#{T(com.precioustech.fxtrading.remotecontrol.Command).SUSPEND_BOT}" value-ref="suspendBot"/>
 		<entry key="#{T(com.precioustech.fxtrading.remotecontrol.Command).RESUME_BOT}" value-ref="resumeBot"/>
+		<entry key="#{T(com.precioustech.fxtrading.remotecontrol.Command).STOP_TRAIL}" value-ref="stopTrailing"/>
+		<entry key="#{T(com.precioustech.fxtrading.remotecontrol.Command).PING}" value-ref="ping"/>
 	</util:map>
     
 	<bean id="eventCallback" class="com.precioustech.fxtrading.events.EventCallbackImpl">
@@ -105,6 +120,12 @@
 		<constructor-arg index="1" ref="currentPriceInfoProvider"/>
 		<constructor-arg index="2" ref="tradingConfig"/>
 		<constructor-arg index="3" ref="providerHelper"/>
+		<constructor-arg index="4">
+			<set value-type="java.lang.Long">
+				<value>465351</value>
+				<value>764454</value>
+			</set>
+		</constructor-arg>
 	</bean>
 	<bean id="heartBeatService" class="com.precioustech.fxtrading.heartbeats.DefaultHeartBeatService">
 		<constructor-arg index="0">
@@ -181,10 +202,7 @@
 		<constructor-arg index="3" ref="tradeManagementProvider"/>
 		<constructor-arg index="4" ref="tradingConfig"/>
 		<constructor-arg index="5">
-			<set value-type="java.lang.Long">
-				<value>10231689924</value>
-				<value>10240166701</value>
-			</set>
+			<set value-type="java.lang.Long"/>
 		</constructor-arg>
 	</bean>
 	<bean id="copyTwitterStrategy" class="com.precioustech.fxtrading.tradingbot.strategies.CopyTwitterStrategy"/>
