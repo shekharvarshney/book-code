@@ -10,9 +10,14 @@ namespace TradingBotCore.Instrument
     {
         public virtual string Instrument { get; set; }
         public virtual string Description { get; set; }
-        public  T InstrumentId { get; set; }
-        public double Pip { get; set; }
+        public virtual T InstrumentId { get; set; }
+        public virtual double Pip { get; set; }
         public InstrumentPairInterestRate InstrumentPairInterestRate { get; set; }
+
+        public TradeableInstrument()
+        {
+
+        }
 
         public TradeableInstrument(string instrument):this(instrument,null)
         {

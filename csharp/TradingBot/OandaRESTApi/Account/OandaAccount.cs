@@ -7,7 +7,7 @@ using TradingBotCore.Account;
 using Newtonsoft.Json;
 namespace OandaRESTApi.Account
 {
-    public class OandaAccount : Account<long>
+    internal class OandaAccount : Account<long>
     {
         [JsonProperty("balance")]
         public override double TotalBalance { get; set; }

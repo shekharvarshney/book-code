@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace TradingBotCore
 {
-    public static class TradingConstants
+    public enum TradingSignal
     {
-        public const char FWD_SLASH = '/';
-        public const char CURRENCY_PAIR_SEP_UNDERSCORE ='_';
+        LONG, SHORT, NONE
+        
     }
 }

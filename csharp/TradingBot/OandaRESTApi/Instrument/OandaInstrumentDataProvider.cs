@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TradingBotCore.Instrument;
+using OandaRESTApi.Utils;
+using TradingBotCore.Utils;
+using TradingBotCore;
 namespace OandaRESTApi.Instrument
 {
     public class OandaInstrumentDataProvider : IInstrumentDataProvider<string>
@@ -32,7 +35,20 @@ namespace OandaRESTApi.Instrument
         {
             get
             {
-                throw new NotImplementedException();
+                string url = string.Format("{0}{1}?accountId={2}&fields={3}",
+                            this.baseUrl, OandaConstants.INSTRUMENTS_RESOURCE, this.accountId, fieldsRequested);
+                OandaTradeableInstruments instruments = OandaUtils.OandaJsonToObject<OandaTradeableInstruments>(url, this.accessToken);
+                IEnumerable<TradeableInstrument<string>> instrsEn =  instruments.instruments.Select(instr =>
+                {
+                    instr.InstrumentPairInterestRate = new InstrumentPairInterestRate();
+                    string[] ccys = TradingUtils.splitCcyPair(instr.Instrument, TradingConstants.CURRENCY_PAIR_SEP_UNDERSCORE);
+                    instr.InstrumentPairInterestRate.BaseCurrencyAskInterestRate = instr.BidAskInterestRate[ccys[0]].Ask;
+                    instr.InstrumentPairInterestRate.BaseCurrencyBidInterestRate = instr.BidAskInterestRate[ccys[0]].Bid;
+                    instr.InstrumentPairInterestRate.QuoteCurrencyAskInterestRate = instr.BidAskInterestRate[ccys[1]].Ask;
+                    instr.InstrumentPairInterestRate.QuoteCurrencyBidInterestRate = instr.BidAskInterestRate[ccys[1]].Bid;
+                    return instr;
+                });
+                return instrsEn.ToList();
             }
         }
     }

@@ -47,6 +47,7 @@
     <Compile Include="Account\OandaAccount.cs" />
     <Compile Include="Account\OandaAccountDataProvider.cs" />
     <Compile Include="Instrument\OandaInstrumentDataProvider.cs" />
+    <Compile Include="Instrument\OandaTradeableInstrument.cs" />
     <Compile Include="OandaConstants.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\OandaUtils.cs" />
