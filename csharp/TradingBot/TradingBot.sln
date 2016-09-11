@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingBotCore", "TradingBotCore\TradingBotCore.csproj", "{AB723435-B4AC-4918-AB45-7D17D8734335}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OandaRESTApi", "OandaRESTApi\OandaRESTApi.csproj", "{F51D3E13-6A57-4703-ACA0-FC83BBC43607}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingBotApp", "TradingBotApp\TradingBotApp.csproj", "{C0A124F5-39F4-4BCA-9331-696D8565632E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AB723435-B4AC-4918-AB45-7D17D8734335}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB723435-B4AC-4918-AB45-7D17D8734335}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB723435-B4AC-4918-AB45-7D17D8734335}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB723435-B4AC-4918-AB45-7D17D8734335}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F51D3E13-6A57-4703-ACA0-FC83BBC43607}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F51D3E13-6A57-4703-ACA0-FC83BBC43607}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F51D3E13-6A57-4703-ACA0-FC83BBC43607}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F51D3E13-6A57-4703-ACA0-FC83BBC43607}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0A124F5-39F4-4BCA-9331-696D8565632E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0A124F5-39F4-4BCA-9331-696D8565632E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0A124F5-39F4-4BCA-9331-696D8565632E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0A124F5-39F4-4BCA-9331-696D8565632E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
