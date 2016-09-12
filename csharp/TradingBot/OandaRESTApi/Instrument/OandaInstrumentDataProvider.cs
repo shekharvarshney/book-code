@@ -38,7 +38,7 @@ namespace OandaRESTApi.Instrument
                 string url = string.Format("{0}{1}?accountId={2}&fields={3}",
                             this.baseUrl, OandaConstants.INSTRUMENTS_RESOURCE, this.accountId, fieldsRequested);
                 OandaTradeableInstruments instruments = OandaUtils.OandaJsonToObject<OandaTradeableInstruments>(url, this.accessToken);
-                IEnumerable<TradeableInstrument<string>> instrsEn =  instruments.instruments.Select(instr =>
+                IEnumerable<TradeableInstrument<string>> instrsEn =  instruments.Instruments.Select(instr =>
                 {
                     instr.InstrumentPairInterestRate = new InstrumentPairInterestRate();
                     string[] ccys = TradingUtils.splitCcyPair(instr.Instrument, TradingConstants.CURRENCY_PAIR_SEP_UNDERSCORE);

@@ -16,5 +16,8 @@ namespace OandaRESTApi
         public const string INSTRUMENTS_RESOURCE = "/v1/instruments";
         public static readonly KeyValuePair<string,string> UNIX_DATETIME_HEADER 
                 = new KeyValuePair<string, string>("X-Accept-Datetime-Format", "UNIX");
+        public const string BUY = "buy";
+	    public const string SELL = "sell";
+	    public const string NONE = "none";
     }
 }

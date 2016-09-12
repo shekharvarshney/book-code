@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Net;
 using System.IO;
+using TradingBotCore;
 namespace OandaRESTApi.Utils
 {
     public static class OandaUtils
@@ -14,6 +15,20 @@ namespace OandaRESTApi.Utils
         {
             return new KeyValuePair<string, string>("Authorization", "Bearer " + accessToken);
         }
+        
+        public static TradingSignal toTradingSignal(string side)
+        {
+            switch(side)
+            {
+                case OandaConstants.BUY:
+                    return TradingSignal.LONG;
+                case OandaConstants.SELL:
+                    return TradingSignal.SHORT;
+                default:
+                    return TradingSignal.NONE;
+            }
+        }
+
         public static T OandaJsonToObject<T>(string url, string accessToken)
         {
             HttpWebRequest request = HttpWebRequest.Create(url) as HttpWebRequest;

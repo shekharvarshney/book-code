@@ -31,7 +31,7 @@ namespace TradingBotCore.Instrument
             return instrumentMap.Where(kvpair => kvpair.Key.Contains(currency)).Select(v=>v.Value).ToList();
         }
 
-        public double? getPipForInstrument(TradeableInstrument<T> instrument)
+        public double getPipForInstrument(TradeableInstrument<T> instrument)
         {
             if(instrument == null)
             {

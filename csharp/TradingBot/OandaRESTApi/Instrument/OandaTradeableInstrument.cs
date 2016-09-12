@@ -1,9 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TradingBotCore.Instrument;
 namespace OandaRESTApi.Instrument
 {
@@ -14,20 +10,20 @@ namespace OandaRESTApi.Instrument
         [JsonProperty("instrument")]
         public override string Instrument { get; set; }
         [JsonProperty("interestRate")]
-        public IDictionary<string, OandaBidAskInterestRate> BidAskInterestRate;
+        public IDictionary<string, OandaBidAskInterestRate> BidAskInterestRate { get; set; }
     }
 
     internal class OandaBidAskInterestRate
     {
         [JsonProperty("bid")]
-        public double Bid;
+        public double Bid { get; set; }
         [JsonProperty("ask")]
-        public double Ask;
+        public double Ask { get; set; }
     }
 
     internal class OandaTradeableInstruments
     {
         [JsonProperty("instruments")]
-        public List<OandaTradeableInstrument> instruments;
+        public List<OandaTradeableInstrument> Instruments { get; set; }
     }
 }
