@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using TradingBotCore.Trade;
 using Newtonsoft.Json;
 namespace OandaRESTApi.Trade
@@ -25,5 +21,11 @@ namespace OandaRESTApi.Trade
         public override double StopLoss { get; set; }
         [JsonProperty("time")]
         public string TradeDateString { get; set; }
+    }
+
+    internal class OandaTrades
+    {
+        [JsonProperty("trades")]
+        public List<OandaTrade> Trades { get; set; }
     }
 }

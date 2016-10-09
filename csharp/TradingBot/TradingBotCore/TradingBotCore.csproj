@@ -62,13 +62,22 @@
     <Compile Include="Instrument\InstrumentPairInterestRate.cs" />
     <Compile Include="Instrument\InstrumentService.cs" />
     <Compile Include="Instrument\TradeableInstrument.cs" />
+    <Compile Include="MarketData\Historic\CandleStick.cs" />
+    <Compile Include="MarketData\Historic\CandleStickGranularity.cs" />
+    <Compile Include="Position\IPositionManagementProvider.cs" />
+    <Compile Include="Position\Position.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Trade\ITradeManagementProvider.cs" />
+    <Compile Include="Trade\Trade.cs" />
+    <Compile Include="Trade\TradeInfoService.cs" />
     <Compile Include="TradingConstants.cs" />
+    <Compile Include="TradingSignal.cs" />
     <Compile Include="Utils\TradingUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

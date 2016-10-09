@@ -14,6 +14,7 @@ namespace TradingBotApp
         [STAThread]
         public static void Main(string[] args)
         {
+            //DateTime dt = TradingBotCore.Utils.TradingUtils.fromUnixMicrosString("1426660416000000");
             string url = "https://api-fxtrade.oanda.com";
             string token = "ea87e4266036daf85138f1d3b33aef48-ef5bcd7a7cc673e93ce4f9d62c5986de";
             string userName = "cvarshney";

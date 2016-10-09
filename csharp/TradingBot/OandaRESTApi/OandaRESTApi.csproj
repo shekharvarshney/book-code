@@ -49,7 +49,11 @@
     <Compile Include="Instrument\OandaInstrumentDataProvider.cs" />
     <Compile Include="Instrument\OandaTradeableInstrument.cs" />
     <Compile Include="OandaConstants.cs" />
+    <Compile Include="Position\OandaPosition.cs" />
+    <Compile Include="Position\OandaPositionManagementProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Trade\OandaTrade.cs" />
+    <Compile Include="Trade\OandaTradeManagementProvider.cs" />
     <Compile Include="Utils\OandaUtils.cs" />
   </ItemGroup>
   <ItemGroup>
