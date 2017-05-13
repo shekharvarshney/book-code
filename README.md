@@ -1,8 +1,8 @@
 # Automated Trading Bot Framework
 
-The software is covered by the *Apache License* and is discussed in my book [Developing a Trading Bot using JAVA](http://www.leanpub.com/tradingbot)
+The software is covered by the *Apache License* and is discussed in my book [Developing a Trading Bot using JAVA](http://www.apress.com/us/book/9781484225196)
 
-##How to run the software
+## How to run the software
 
 1. Download the source code.
 2. Change the **tradingbot.properties** by configuring the email and twitter properties
